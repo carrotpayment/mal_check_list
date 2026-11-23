@@ -41,7 +41,7 @@
         <div class="truncate">
           <h1 class="text-sm sm:text-base font-semibold leading-tight truncate">SiteGuard Verification</h1>
           <div class="flex items-center gap-1.5 mt-0.5">
-            <span id="modeBadge" class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <span id="connectionBadge" class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               Google Drive Live
             </span>
@@ -69,7 +69,7 @@
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-4">
         <div>
           <h2 class="text-base font-semibold text-slate-900">On-Site Security Verification</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Capture a live site photo and complete electronic sign-off to log inspection.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Capture a live site photo and complete electronic sign-off to log inspection to Google Drive.</p>
         </div>
 
         <!-- Inspector Name -->
@@ -138,7 +138,7 @@
             </button>
           </div>
           <div id="gpsDisplay" class="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 text-xs text-slate-600 font-mono">
-            Not captured yet (tap Refresh GPS or submit to auto-fetch)
+            Acquiring GPS coordinates...
           </div>
         </div>
 
@@ -163,7 +163,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="text-base font-semibold text-slate-900">Admin Verification Log</h2>
-          <p class="text-xs text-slate-500">Synced directly with Google Sheets & Google Drive</p>
+          <p class="text-xs text-slate-500">Live records synced with Google Sheets & Google Drive</p>
         </div>
         <div class="flex items-center gap-2">
           <button type="button" onclick="loadRecords(true)"
@@ -173,16 +173,15 @@
             </svg>
             Refresh
           </button>
-          <button type="button" id="btnLoadSample" onclick="loadSampleData()"
-            class="hidden px-3 py-1.5 rounded-lg bg-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-300 transition">
-            Load Sample Data
-          </button>
           <button type="button" onclick="lockAdmin()"
             class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition">
             Lock Admin
           </button>
         </div>
       </div>
+
+      <!-- Sync Error Banner -->
+      <div id="syncErrorBanner" class="hidden rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-800"></div>
 
       <!-- KPI Summary Cards -->
       <div class="grid grid-cols-3 gap-3">
@@ -225,7 +224,7 @@
       <div id="recordsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       <div id="emptyState" class="hidden bg-white rounded-xl border border-slate-200 p-10 text-center space-y-1">
         <p class="text-sm font-medium text-slate-700">No verification records found</p>
-        <p class="text-xs text-slate-400">Submitted field check-ins will appear here automatically.</p>
+        <p class="text-xs text-slate-400">Submitted field check-ins will appear here once logged to Google Sheets.</p>
       </div>
     </section>
   </main>
@@ -346,17 +345,10 @@
 
   <script>
     // =========================================================================
-    // CONFIGURATION
+    // PRODUCTION CONFIGURATION (LIVE GOOGLE APPS SCRIPT ONLY)
     // =========================================================================
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydTw0RIMaY6X_sGdIErAUqkoRcZrzEgSdpdsu9N_RodaKtp5yVvkTzzhAYL0IBK8R4/exec";
     const ADMIN_PIN = "1234";
-    const LOCAL_STORAGE_KEY = "siteguard_verifications_v1";
-
-    const IS_LIVE_MODE = Boolean(
-      GAS_WEB_APP_URL &&
-      GAS_WEB_APP_URL.startsWith("https://script.google.com/macros/s/") &&
-      !GAS_WEB_APP_URL.includes("YOUR_GAS_WEB_APP_URL")
-    );
 
     // =========================================================================
     // STATE
@@ -377,7 +369,6 @@
     // INITIALIZATION
     // =========================================================================
     document.addEventListener("DOMContentLoaded", () => {
-      updateModeBadge();
       initSignaturePad();
 
       document.getElementById("photoInput").addEventListener("change", handlePhotoSelected);
@@ -390,20 +381,6 @@
 
       captureGPS();
     });
-
-    function updateModeBadge() {
-      const badge = document.getElementById("modeBadge");
-      const sampleBtn = document.getElementById("btnLoadSample");
-      if (IS_LIVE_MODE) {
-        badge.className = "inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Google Drive Live';
-        sampleBtn.classList.add("hidden");
-      } else {
-        badge.className = "inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local Demo';
-        sampleBtn.classList.remove("hidden");
-      }
-    }
 
     // =========================================================================
     // NAVIGATION & ADMIN PIN
@@ -644,7 +621,6 @@
         return;
       }
 
-      // Refresh watermark right before sign-off so timestamp is current
       renderWatermarkedPhoto();
 
       document.getElementById("agreeCheckbox").checked = false;
@@ -665,13 +641,24 @@
       document.getElementById("btnConfirmSign").disabled = !(agreed && hasSignature) || isSubmitting;
     }
 
+    function parseGasResponse(text) {
+      if (text && text.trim().startsWith("<")) {
+        throw new Error("Apps Script access denied. Set deployment 'Who has access' to 'Anyone'.");
+      }
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error("Invalid response from Apps Script. Check Code.gs deployment.");
+      }
+    }
+
     async function confirmAndSubmit() {
       if (isSubmitting) return;
       isSubmitting = true;
       updateSignButtonState();
 
       const btnText = document.getElementById("btnConfirmText");
-      btnText.innerHTML = '<span class="spinner"></span> Uploading...';
+      btnText.innerHTML = '<span class="spinner"></span> Uploading to Drive...';
 
       const signatureDataUrl = sigCanvas.toDataURL("image/png");
       const timestamp = new Date().toISOString();
@@ -688,30 +675,18 @@
       };
 
       try {
-        if (IS_LIVE_MODE) {
-          const response = await fetch(`${GAS_WEB_APP_URL}?action=create`, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(payload)
-          });
-          const text = await response.text();
-          let resJson;
-          try {
-            resJson = JSON.parse(text);
-          } catch {
-            throw new Error("Unexpected response from Apps Script.");
-          }
-          if (resJson.status && resJson.status !== "success") {
-            throw new Error(resJson.message || "Failed to save to Google Drive.");
-          }
-        } else {
-          const localList = getLocalRecords();
-          localList.unshift({
-            ...payload,
-            photoUrl: payload.photo,
-            signatureUrl: payload.signature
-          });
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localList));
+        const response = await fetch(`${GAS_WEB_APP_URL}?action=create`, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await response.text();
+        const resJson = parseGasResponse(text);
+
+        if (resJson.status && resJson.status !== "success") {
+          throw new Error(resJson.message || "Failed to save to Google Drive.");
         }
 
         // Reset form
@@ -726,7 +701,7 @@
         isSubmitting = false;
         btnText.textContent = "Confirm & Sign";
         closeSignOffModal();
-        showToast(IS_LIVE_MODE ? "Verification saved to Google Drive & Sheets." : "Verification saved locally.");
+        showToast("Saved to Google Drive & Google Sheets.");
       } catch (err) {
         console.error(err);
         isSubmitting = false;
@@ -737,16 +712,8 @@
     }
 
     // =========================================================================
-    // DATA FETCHING & NORMALIZATION (GAS + LOCAL FALLBACK)
+    // LIVE DATA FETCHING (GOOGLE APPS SCRIPT)
     // =========================================================================
-    function getLocalRecords() {
-      try {
-        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
-      } catch {
-        return [];
-      }
-    }
-
     function normalizeRecord(row) {
       const vals = Object.values(row || {});
       return {
@@ -781,27 +748,30 @@
       const loadingEl = document.getElementById("adminLoading");
       const gridEl = document.getElementById("recordsGrid");
       const emptyEl = document.getElementById("emptyState");
+      const errorBanner = document.getElementById("syncErrorBanner");
 
-      if (IS_LIVE_MODE) {
-        loadingEl.classList.remove("hidden");
-        gridEl.innerHTML = "";
-        emptyEl.classList.add("hidden");
-        try {
-          const res = await fetch(`${GAS_WEB_APP_URL}?action=list`);
-          const text = await res.text();
-          const data = JSON.parse(text);
-          const list = Array.isArray(data) ? data : (data.records || data.data || []);
-          records = list.map(normalizeRecord).reverse();
-          if (manualRefresh) showToast("Synced with Google Sheets.");
-        } catch (err) {
-          console.error(err);
-          showToast("Failed to fetch records from Apps Script.");
-          records = [];
-        } finally {
-          loadingEl.classList.add("hidden");
-        }
-      } else {
-        records = getLocalRecords().map(normalizeRecord);
+      loadingEl.classList.remove("hidden");
+      gridEl.innerHTML = "";
+      emptyEl.classList.add("hidden");
+      errorBanner.classList.add("hidden");
+
+      try {
+        const res = await fetch(`${GAS_WEB_APP_URL}?action=list`, {
+          method: "GET",
+          redirect: "follow"
+        });
+        const text = await res.text();
+        const data = parseGasResponse(text);
+        const list = Array.isArray(data) ? data : (data.records || data.data || []);
+        records = list.map(normalizeRecord).reverse();
+        if (manualRefresh) showToast("Synced with Google Sheets.");
+      } catch (err) {
+        console.error(err);
+        records = [];
+        errorBanner.textContent = "Google Sheets sync error: " + err.message;
+        errorBanner.classList.remove("hidden");
+      } finally {
+        loadingEl.classList.add("hidden");
       }
 
       renderAdminList();
@@ -964,65 +934,26 @@
     }
 
     async function deleteRecord(rec) {
-      if (!confirm("Delete this verification record from the log?")) return;
+      if (!confirm("Delete this verification record from Google Sheets?")) return;
 
       try {
-        if (IS_LIVE_MODE) {
-          await fetch(`${GAS_WEB_APP_URL}?action=delete`, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              timestamp: rec.timestamp,
-              inspector: rec.inspector
-            })
-          });
-          closeDetailModal();
-          showToast("Record deleted from Google Sheets.");
-          await loadRecords();
-        } else {
-          const updated = getLocalRecords().filter(
-            (r) => !(r.timestamp === rec.timestamp && r.inspector === rec.inspector)
-          );
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-          closeDetailModal();
-          showToast("Record deleted locally.");
-          loadRecords();
-        }
+        const res = await fetch(`${GAS_WEB_APP_URL}?action=delete`, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            timestamp: rec.timestamp,
+            inspector: rec.inspector
+          })
+        });
+        parseGasResponse(await res.text());
+        closeDetailModal();
+        showToast("Record deleted from Google Sheets.");
+        await loadRecords();
       } catch (err) {
         console.error(err);
-        showToast("Failed to delete record.");
+        showToast("Failed to delete record: " + err.message);
       }
-    }
-
-    // =========================================================================
-    // DEMO SAMPLE DATA (LOCAL MODE ONLY)
-    // =========================================================================
-    function loadSampleData() {
-      const sample = [
-        {
-          timestamp: new Date(Date.now() - 1800 * 1000).toISOString(),
-          zone: "Zone D - Sensor / Detection Area",
-          inspector: "Jordan Lee",
-          status: "Normal",
-          gps: "37.566500, 126.978000",
-          memo: "All motion and LiDAR sensors calibrated and powered.",
-          photoUrl: "",
-          signatureUrl: ""
-        },
-        {
-          timestamp: new Date(Date.now() - 5400 * 1000).toISOString(),
-          zone: "Zone B - Exhibition Booth & Hardware",
-          inspector: "Chris Park",
-          status: "Issue Detected",
-          gps: "37.566820, 126.978410",
-          memo: "Rear cable lock slightly loose; secured with zip tie.",
-          photoUrl: "",
-          signatureUrl: ""
-        }
-      ];
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sample));
-      loadRecords();
-      showToast("Sample data loaded.");
     }
 
     // =========================================================================
@@ -1058,7 +989,7 @@
       el.textContent = msg;
       el.classList.remove("hidden");
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.add("hidden"), 3200);
+      toastTimer = setTimeout(() => el.classList.add("hidden"), 3500);
     }
   </script>
 </body>
