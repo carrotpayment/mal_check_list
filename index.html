@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SiteGuard Verification — Field Security Check-In</title>
+  <title>SiteGuard Verification — 4-Zone PDF Security Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -43,7 +44,7 @@
           <div class="flex items-center gap-1.5 mt-0.5">
             <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              Google Drive Live
+              Google Drive PDF Archive
             </span>
           </div>
         </div>
@@ -65,35 +66,28 @@
   <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-5">
 
     <!-- ==================== FIELD CHECK-IN VIEW ==================== -->
-    <section id="viewField" class="max-w-lg mx-auto space-y-4">
+    <section id="viewField" class="max-w-xl mx-auto space-y-4">
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-4">
-        <div>
-          <h2 class="text-base font-semibold text-slate-900">On-Site Security Verification</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Capture a live site photo and complete electronic sign-off to log inspection to Google Drive.</p>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-base font-semibold text-slate-900">4-Zone Security Verification</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Capture all 4 zone photos and sign off to generate & archive a single PDF report.</p>
+          </div>
+          <span id="photoProgressBadge" class="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+            0 / 4 Photos
+          </span>
         </div>
 
         <!-- Inspector Name -->
         <div>
-          <label for="inspectorInput" class="block text-xs font-medium text-slate-700 mb-1">Inspector Name *</label>
+          <label for="inspectorInput" class="block text-xs font-medium text-slate-700 mb-1">Inspector Name (English) *</label>
           <input id="inspectorInput" type="text" placeholder="e.g., Alex Morgan"
             class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900" />
         </div>
 
-        <!-- Inspection Zone -->
+        <!-- Overall Site Condition -->
         <div>
-          <label for="zoneSelect" class="block text-xs font-medium text-slate-700 mb-1">Inspection Zone *</label>
-          <select id="zoneSelect"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900">
-            <option value="Zone A - Main Entrance & Perimeter">Zone A - Main Entrance & Perimeter</option>
-            <option value="Zone B - Exhibition Booth & Hardware">Zone B - Exhibition Booth & Hardware</option>
-            <option value="Zone C - Equipment Storage & Power">Zone C - Equipment Storage & Power</option>
-            <option value="Zone D - Sensor / Detection Area">Zone D - Sensor / Detection Area</option>
-          </select>
-        </div>
-
-        <!-- Condition Status -->
-        <div>
-          <span class="block text-xs font-medium text-slate-700 mb-1.5">Site Condition *</span>
+          <span class="block text-xs font-medium text-slate-700 mb-1.5">Overall Site Condition *</span>
           <div class="grid grid-cols-2 gap-2.5">
             <button type="button" id="btnStatusNormal" onclick="setStatus('Normal')"
               class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-emerald-600 bg-emerald-50 text-emerald-800 text-sm font-medium transition">
@@ -108,25 +102,10 @@
           </div>
         </div>
 
-        <!-- Live Camera Capture -->
+        <!-- 4-Zone Photo Capture Grid -->
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1.5">Live Verification Photo *</label>
-          <input id="photoInput" type="file" accept="image/*" capture="environment" class="hidden" />
-          <div id="photoDropArea" onclick="document.getElementById('photoInput').click()"
-            class="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition">
-            <div id="photoPlaceholder" class="space-y-1.5">
-              <svg class="w-8 h-8 mx-auto text-slate-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-              </svg>
-              <p class="text-sm font-medium text-slate-700">Tap to Open Camera</p>
-              <p class="text-xs text-slate-400">Timestamp, zone, and inspector watermark applied automatically</p>
-            </div>
-            <div id="photoPreviewWrap" class="hidden space-y-2">
-              <img id="photoPreview" alt="Watermarked preview" class="w-full max-h-72 object-contain rounded-lg bg-slate-900 mx-auto" />
-              <p class="text-xs text-slate-500">Tap image to retake photo</p>
-            </div>
-          </div>
+          <label class="block text-xs font-medium text-slate-700 mb-2">Required Zone Photos (All 4 Required) *</label>
+          <div id="zonesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </div>
 
         <!-- GPS Coordinates -->
@@ -144,15 +123,15 @@
 
         <!-- Notes / Memo -->
         <div>
-          <label for="memoInput" class="block text-xs font-medium text-slate-700 mb-1">Inspection Notes (Optional)</label>
+          <label for="memoInput" class="block text-xs font-medium text-slate-700 mb-1">Inspection Notes (Optional, English)</label>
           <textarea id="memoInput" rows="2" placeholder="Record any seal numbers, anomalies, or sensor checks..."
             class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"></textarea>
         </div>
 
         <!-- Submit Trigger -->
-        <button type="button" onclick="openSignOffModal()"
+        <button type="button" id="btnOpenSignOff" onclick="openSignOffModal()"
           class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-semibold shadow-sm transition">
-          Submit Verification & Sign Off
+          Submit All 4 Photos & Generate PDF Sign-Off
         </button>
       </div>
     </section>
@@ -161,8 +140,8 @@
     <section id="viewAdmin" class="hidden space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-base font-semibold text-slate-900">Admin Verification Log</h2>
-          <p class="text-xs text-slate-500">Live records synced with Google Sheets & Google Drive</p>
+          <h2 class="text-base font-semibold text-slate-900">Admin PDF Report Archive</h2>
+          <p class="text-xs text-slate-500">All 4-zone inspection reports archived as PDFs in Google Drive</p>
         </div>
         <div class="flex items-center gap-2">
           <button type="button" onclick="loadRecords(true)"
@@ -185,7 +164,7 @@
       <!-- KPI Summary Cards -->
       <div class="grid grid-cols-3 gap-3">
         <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
-          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Total Logs</p>
+          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Total PDFs</p>
           <p id="statTotal" class="text-xl font-bold text-slate-900 mt-1">0</p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
@@ -198,16 +177,10 @@
         </div>
       </div>
 
-      <!-- Filters -->
+      <!-- Filter -->
       <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex flex-wrap gap-2.5">
-        <select id="filterZone" onchange="renderAdminList()"
-          class="flex-1 min-w-[180px] rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-slate-900">
-          <option value="ALL">All Inspection Zones</option>
-          <option value="Zone A - Main Entrance & Perimeter">Zone A - Main Entrance & Perimeter</option>
-          <option value="Zone B - Exhibition Booth & Hardware">Zone B - Exhibition Booth & Hardware</option>
-          <option value="Zone C - Equipment Storage & Power">Zone C - Equipment Storage & Power</option>
-          <option value="Zone D - Sensor / Detection Area">Zone D - Sensor / Detection Area</option>
-        </select>
+        <input id="filterSearch" type="text" oninput="renderAdminList()" placeholder="Search by inspector or report ID..."
+          class="flex-1 min-w-[180px] rounded-lg border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-slate-900" />
         <select id="filterStatus" onchange="renderAdminList()"
           class="w-40 rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-slate-900">
           <option value="ALL">All Statuses</option>
@@ -218,12 +191,12 @@
 
       <!-- Records List -->
       <div id="adminLoading" class="hidden bg-white rounded-xl border border-slate-200 p-8 text-center text-xs text-slate-500">
-        Syncing records from Google Sheets...
+        Syncing PDF reports from Google Sheets...
       </div>
-      <div id="recordsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      <div id="recordsGrid" class="space-y-3"></div>
       <div id="emptyState" class="hidden bg-white rounded-xl border border-slate-200 p-10 text-center space-y-1">
-        <p class="text-sm font-medium text-slate-700">No verification records found</p>
-        <p class="text-xs text-slate-400">Submitted field check-ins will appear here once logged to Google Sheets.</p>
+        <p class="text-sm font-medium text-slate-700">No PDF reports found</p>
+        <p class="text-xs text-slate-400">Submitted 4-zone inspection reports will appear here.</p>
       </div>
     </section>
   </main>
@@ -246,15 +219,15 @@
       <div class="p-5 overflow-y-auto space-y-4">
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-700 space-y-2 leading-relaxed">
           <p class="font-semibold text-slate-900">Declaration of Authenticity & Chain-of-Custody</p>
-          <p>1. <strong>Live Physical Inspection:</strong> I attest that the attached photograph was captured live on-site at the designated inspection zone and has not been altered or retrieved from archived media.</p>
+          <p>1. <strong>Live Physical Inspection:</strong> I attest that all four (4) attached photographs were captured live on-site at their designated inspection zones and have not been altered or retrieved from archived media.</p>
           <p>2. <strong>Accuracy of Record:</strong> All reported status details, timestamps, GPS metadata, and observations accurately reflect physical site conditions at the time of inspection.</p>
-          <p>3. <strong>Electronic Signature Consent:</strong> Pursuant to applicable electronic signature standards (eIDAS Regulation / U.S. ESIGN Act), I consent to execute this verification electronically and acknowledge that my signature and audit log will be archived for security compliance.</p>
+          <p>3. <strong>Electronic Signature Consent:</strong> Pursuant to applicable electronic signature standards (eIDAS Regulation / U.S. ESIGN Act), I consent to execute this verification electronically and acknowledge that my signature, photos, and audit log will be compiled into an immutable PDF record archived for security compliance.</p>
         </div>
 
         <label class="flex items-start gap-2.5 cursor-pointer select-none">
           <input id="agreeCheckbox" type="checkbox" onchange="updateSignButtonState()"
             class="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-          <span class="text-xs text-slate-700">I have read and agree to the attestation terms above and confirm this inspection record is authentic.</span>
+          <span class="text-xs text-slate-700">I have read and agree to the attestation terms above and confirm all 4 zone photos are authentic.</span>
         </label>
 
         <div>
@@ -280,7 +253,7 @@
         </button>
         <button type="button" id="btnConfirmSign" onclick="confirmAndSubmit()" disabled
           class="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition flex items-center justify-center gap-2">
-          <span id="btnConfirmText">Confirm & Sign</span>
+          <span id="btnConfirmText">Confirm & Save PDF</span>
         </button>
       </div>
     </div>
@@ -291,7 +264,7 @@
     <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl p-5 space-y-4">
       <div>
         <h3 class="text-base font-semibold text-slate-900">Admin Access</h3>
-        <p class="text-xs text-slate-500 mt-0.5">Enter administrator PIN to view verification logs.</p>
+        <p class="text-xs text-slate-500 mt-0.5">Enter administrator PIN to view archived PDF reports.</p>
       </div>
       <div>
         <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="Enter PIN"
@@ -312,32 +285,8 @@
     </div>
   </div>
 
-  <!-- ==================== RECORD DETAIL MODAL ==================== -->
-  <div id="detailModal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
-      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-slate-900">Verification Record Details</h3>
-        <button type="button" onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-700 p-1">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <div id="detailBody" class="p-5 overflow-y-auto space-y-4"></div>
-      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-        <button type="button" id="btnDeleteRecord" class="text-xs font-medium text-rose-600 hover:text-rose-700">
-          Delete Record
-        </button>
-        <button type="button" onclick="closeDetailModal()"
-          class="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800">
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-lg transition"></div>
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-lg transition max-w-xs text-center"></div>
 
   <script>
     // =========================================================================
@@ -346,15 +295,28 @@
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydTw0RIMaY6X_sGdIErAUqkoRcZrzEgSdpdsu9N_RodaKtp5yVvkTzzhAYL0IBK8R4/exec";
     const ADMIN_PIN = "1234";
 
+    const ZONES = [
+      { id: "zoneA", code: "Zone A", label: "Zone A - Main Entrance & Perimeter" },
+      { id: "zoneB", code: "Zone B", label: "Zone B - Exhibition Booth & Hardware" },
+      { id: "zoneC", code: "Zone C", label: "Zone C - Equipment Storage & Power" },
+      { id: "zoneD", code: "Zone D", label: "Zone D - Sensor / Detection Area" }
+    ];
+
     // =========================================================================
     // STATE
     // =========================================================================
     let currentStatus = "Normal";
-    let rawImageElement = null;
-    let watermarkedPhotoDataUrl = "";
     let currentGps = "Location unavailable";
     let records = [];
     let isSubmitting = false;
+
+    // Store raw Image objects and watermarked data URLs for all 4 zones
+    const zonePhotos = {
+      zoneA: { rawImg: null, dataUrl: "", width: 0, height: 0 },
+      zoneB: { rawImg: null, dataUrl: "", width: 0, height: 0 },
+      zoneC: { rawImg: null, dataUrl: "", width: 0, height: 0 },
+      zoneD: { rawImg: null, dataUrl: "", width: 0, height: 0 }
+    };
 
     let sigCanvas, sigCtx;
     let isDrawing = false;
@@ -364,18 +326,54 @@
     // INITIALIZATION
     // =========================================================================
     document.addEventListener("DOMContentLoaded", () => {
+      renderZoneCards();
       initSignaturePad();
 
-      document.getElementById("photoInput").addEventListener("change", handlePhotoSelected);
       document.getElementById("inspectorInput").addEventListener("input", () => {
-        if (rawImageElement) renderWatermarkedPhoto();
-      });
-      document.getElementById("zoneSelect").addEventListener("change", () => {
-        if (rawImageElement) renderWatermarkedPhoto();
+        ZONES.forEach((z) => {
+          if (zonePhotos[z.id].rawImg) renderWatermarkedPhoto(z.id);
+        });
       });
 
       captureGPS();
     });
+
+    function renderZoneCards() {
+      const container = document.getElementById("zonesGrid");
+      container.innerHTML = ZONES.map((z) => `
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 flex flex-col gap-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-800 truncate">${z.label}</span>
+            <span id="badge_${z.id}" class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+              Required
+            </span>
+          </div>
+          <input id="input_${z.id}" type="file" accept="image/*" capture="environment" class="hidden" onchange="handleZonePhotoSelected('${z.id}', event)" />
+          <div onclick="document.getElementById('input_${z.id}').click()"
+            class="h-36 rounded-lg border-2 border-dashed border-slate-300 bg-white hover:border-slate-400 cursor-pointer overflow-hidden flex items-center justify-center relative transition">
+            <div id="placeholder_${z.id}" class="text-center px-3 space-y-1">
+              <svg class="w-6 h-6 mx-auto text-slate-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+              </svg>
+              <p class="text-xs font-medium text-slate-600">Tap to Capture ${z.code}</p>
+            </div>
+            <img id="preview_${z.id}" alt="${z.label}" class="hidden w-full h-full object-cover" />
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function updatePhotoProgress() {
+      const count = ZONES.filter((z) => Boolean(zonePhotos[z.id].dataUrl)).length;
+      const badge = document.getElementById("photoProgressBadge");
+      badge.textContent = `${count} / 4 Photos`;
+      if (count === 4) {
+        badge.className = "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+      } else {
+        badge.className = "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200";
+      }
+    }
 
     // =========================================================================
     // NAVIGATION & ADMIN PIN
@@ -428,7 +426,7 @@
     }
 
     // =========================================================================
-    // FIELD CHECK-IN: STATUS, GPS, PHOTO & WATERMARK
+    // FIELD CHECK-IN: STATUS, GPS, 4-ZONE PHOTOS & WATERMARK
     // =========================================================================
     function setStatus(status) {
       currentStatus = status;
@@ -467,7 +465,7 @@
       );
     }
 
-    function handlePhotoSelected(event) {
+    function handleZonePhotoSelected(zoneId, event) {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
 
@@ -475,52 +473,53 @@
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-          rawImageElement = img;
-          renderWatermarkedPhoto();
+          zonePhotos[zoneId].rawImg = img;
+          renderWatermarkedPhoto(zoneId);
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function renderWatermarkedPhoto() {
-      if (!rawImageElement) return;
+    function renderWatermarkedPhoto(zoneId) {
+      const slot = zonePhotos[zoneId];
+      if (!slot || !slot.rawImg) return;
 
-      const maxWidth = 960;
-      const scale = Math.min(1, maxWidth / rawImageElement.width);
-      const width = Math.round(rawImageElement.width * scale);
-      const height = Math.round(rawImageElement.height * scale);
+      const zoneObj = ZONES.find((z) => z.id === zoneId);
+      const maxWidth = 840;
+      const scale = Math.min(1, maxWidth / slot.rawImg.width);
+      const width = Math.round(slot.rawImg.width * scale);
+      const height = Math.round(slot.rawImg.height * scale);
 
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
 
-      ctx.drawImage(rawImageElement, 0, 0, width, height);
+      ctx.drawImage(slot.rawImg, 0, 0, width, height);
 
       const inspector = document.getElementById("inspectorInput").value.trim() || "Unassigned";
-      const zone = document.getElementById("zoneSelect").value;
       const nowStr = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
 
       const lines = [
         `TIME: ${nowStr}`,
-        `ZONE: ${zone}`,
+        `ZONE: ${zoneObj.label}`,
         `INSPECTOR: ${inspector}`
       ];
 
-      const fontSize = Math.max(12, Math.round(width * 0.02));
+      const fontSize = Math.max(12, Math.round(width * 0.022));
       ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
 
-      const lineHeight = Math.round(fontSize * 1.38);
-      const padX = Math.round(fontSize * 0.8);
-      const padY = Math.round(fontSize * 0.6);
+      const lineHeight = Math.round(fontSize * 1.35);
+      const padX = Math.round(fontSize * 0.75);
+      const padY = Math.round(fontSize * 0.55);
       const maxTextWidth = Math.max(...lines.map((l) => ctx.measureText(l).width));
       const boxW = maxTextWidth + padX * 2;
       const boxH = lines.length * lineHeight + padY * 2;
-      const boxX = width - boxW - 12;
-      const boxY = height - boxH - 12;
+      const boxX = width - boxW - 10;
+      const boxY = height - boxH - 10;
 
-      ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+      ctx.fillStyle = "rgba(15, 23, 42, 0.74)";
       ctx.fillRect(boxX, boxY, boxW, boxH);
 
       ctx.fillStyle = "#ffffff";
@@ -529,10 +528,20 @@
         ctx.fillText(line, boxX + padX, boxY + padY + idx * lineHeight);
       });
 
-      watermarkedPhotoDataUrl = canvas.toDataURL("image/jpeg", 0.72);
-      document.getElementById("photoPreview").src = watermarkedPhotoDataUrl;
-      document.getElementById("photoPlaceholder").classList.add("hidden");
-      document.getElementById("photoPreviewWrap").classList.remove("hidden");
+      slot.dataUrl = canvas.toDataURL("image/jpeg", 0.68);
+      slot.width = width;
+      slot.height = height;
+
+      const preview = document.getElementById(`preview_${zoneId}`);
+      preview.src = slot.dataUrl;
+      preview.classList.remove("hidden");
+      document.getElementById(`placeholder_${zoneId}`).classList.add("hidden");
+
+      const badge = document.getElementById(`badge_${zoneId}`);
+      badge.textContent = "Captured";
+      badge.className = "shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700";
+
+      updatePhotoProgress();
     }
 
     // =========================================================================
@@ -611,12 +620,15 @@
         document.getElementById("inspectorInput").focus();
         return;
       }
-      if (!watermarkedPhotoDataUrl) {
-        showToast("Please capture a live verification photo first.");
+
+      const missing = ZONES.filter((z) => !zonePhotos[z.id].dataUrl);
+      if (missing.length > 0) {
+        showToast(`Please capture all 4 zone photos (${4 - missing.length}/4 done). Missing: ${missing[0].code}`);
         return;
       }
 
-      renderWatermarkedPhoto();
+      // Refresh watermarks to current UTC timestamp before generating PDF
+      ZONES.forEach((z) => renderWatermarkedPhoto(z.id));
 
       document.getElementById("agreeCheckbox").checked = false;
       document.getElementById("signOffModal").classList.remove("hidden");
@@ -637,7 +649,200 @@
     }
 
     // =========================================================================
-    // CORS-SAFE POST TO GOOGLE APPS SCRIPT (NO-CORS MODE)
+    // CLIENT-SIDE A4 PDF REPORT GENERATOR (4 PHOTOS + ATTESTATION + SIGNATURE)
+    // =========================================================================
+    function generateVerificationPdf({ reportId, timestamp, inspector, status, gps, memo, signatureDataUrl }) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = 210;
+      const margin = 14;
+      const contentW = pageW - margin * 2;
+
+      // 1. Header Banner
+      doc.setFillColor(15, 23, 42); // slate-900
+      doc.rect(0, 0, pageW, 24, "F");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text("SITEGUARD SECURITY VERIFICATION REPORT", margin, 11);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text("4-Zone Physical Inspection & Chain-of-Custody Certificate", margin, 17.5);
+
+      // Status Pill on Header Right
+      const isNormal = status === "Normal";
+      doc.setFillColor(isNormal ? 16 : 225, isNormal ? 185 : 29, isNormal ? 129 : 72);
+      doc.roundedRect(pageW - margin - 38, 6.5, 38, 7.5, 2, 2, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text(status.toUpperCase(), pageW - margin - 19, 11.4, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`ID: ${reportId}`, pageW - margin, 18.5, { align: "right" });
+
+      // 2. Metadata Summary Box
+      const metaY = 29;
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(margin, metaY, contentW, 29, 2, 2, "FD");
+
+      doc.setTextColor(100, 116, 139);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.text("INSPECTOR", margin + 4, metaY + 6);
+      doc.text("TIMESTAMP (UTC)", margin + 64, metaY + 6);
+      doc.text("GPS COORDINATES", margin + 126, metaY + 6);
+
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(inspector.slice(0, 28), margin + 4, metaY + 11);
+      doc.text(timestamp.replace("T", " ").slice(0, 19) + " UTC", margin + 64, metaY + 11);
+      doc.text(String(gps || "Location unavailable").slice(0, 26), margin + 126, metaY + 11);
+
+      doc.setTextColor(100, 116, 139);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.text("INSPECTION NOTES", margin + 4, metaY + 18.5);
+
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      const noteText = memo ? memo : "No anomalies or additional notes recorded.";
+      const wrappedNotes = doc.splitTextToSize(noteText, contentW - 8).slice(0, 2);
+      doc.text(wrappedNotes, margin + 4, metaY + 23);
+
+      // 3. 4-Zone Photographic Evidence (2x2 Grid)
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("PHOTOGRAPHIC EVIDENCE (ALL 4 ZONES)", margin, 65.5);
+
+      const gap = 6;
+      const cellW = (contentW - gap) / 2; // 88mm
+      const imgBoxH = 54;
+      const labelH = 6;
+      const rowPositions = [68, 132];
+
+      ZONES.forEach((z, idx) => {
+        const col = idx % 2;
+        const row = Math.floor(idx / 2);
+        const x = margin + col * (cellW + gap);
+        const y = rowPositions[row];
+
+        // Zone Header Strip
+        doc.setFillColor(241, 245, 249);
+        doc.setDrawColor(203, 213, 225);
+        doc.rect(x, y, cellW, labelH, "FD");
+        doc.setTextColor(15, 23, 42);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7.5);
+        doc.text(z.label, x + 2.5, y + 4.1);
+
+        // Dark Frame for Photo
+        const frameY = y + labelH;
+        doc.setFillColor(15, 23, 42);
+        doc.rect(x, frameY, cellW, imgBoxH, "F");
+
+        const slot = zonePhotos[z.id];
+        if (slot && slot.dataUrl && slot.width && slot.height) {
+          const imgRatio = slot.width / slot.height;
+          const boxRatio = cellW / imgBoxH;
+          let drawW = cellW;
+          let drawH = imgBoxH;
+          if (imgRatio > boxRatio) {
+            drawH = cellW / imgRatio;
+          } else {
+            drawW = imgBoxH * imgRatio;
+          }
+          const offsetX = x + (cellW - drawW) / 2;
+          const offsetY = frameY + (imgBoxH - drawH) / 2;
+          doc.addImage(slot.dataUrl, "JPEG", offsetX, offsetY, drawW, drawH);
+        }
+      });
+
+      // 4. Declaration of Authenticity & Electronic Sign-Off
+      const signY = 198;
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(margin, signY, contentW, 84, 2, 2, "FD");
+
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.text("DECLARATION OF AUTHENTICITY & ELECTRONIC SIGN-OFF (eIDAS / ESIGN ACT)", margin + 4, signY + 7);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.3);
+      doc.setTextColor(51, 65, 85);
+
+      const terms = [
+        "1. Live Physical Inspection: I attest that all four (4) photographs included in this report were captured live on-site at the designated inspection zones and have not been altered or retrieved from archived media.",
+        "2. Accuracy of Record: All reported site conditions, timestamps, GPS metadata, and observations accurately reflect physical site conditions at the time of inspection.",
+        "3. Electronic Signature Consent: Pursuant to international electronic signature standards (eIDAS Regulation / U.S. ESIGN Act), I consent to execute this verification electronically and acknowledge that this PDF document and audit log will be archived for security compliance."
+      ];
+
+      let termY = signY + 13;
+      terms.forEach((t) => {
+        const lines = doc.splitTextToSize(t, contentW - 8);
+        doc.text(lines, margin + 4, termY);
+        termY += lines.length * 3.5 + 2;
+      });
+
+      // Divider line inside sign-off box
+      doc.setDrawColor(226, 232, 240);
+      doc.line(margin + 4, signY + 47, pageW - margin - 4, signY + 47);
+
+      // Left: Signer Details
+      doc.setTextColor(100, 116, 139);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.text("SIGNED BY", margin + 4, signY + 54);
+      doc.text("SIGNED TIMESTAMP (UTC)", margin + 4, signY + 64);
+      doc.text("ATTESTATION STATUS", margin + 4, signY + 74);
+
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(inspector, margin + 4, signY + 58.5);
+      doc.text(timestamp.replace("T", " ").slice(0, 19) + " UTC", margin + 4, signY + 68.5);
+
+      doc.setTextColor(5, 150, 105);
+      doc.setFont("helvetica", "bold");
+      doc.text("Confirmed & Electronically Signed", margin + 4, signY + 78.5);
+
+      // Right: Signature Image Box
+      const sigBoxX = pageW - margin - 74;
+      const sigBoxY = signY + 51;
+      const sigBoxW = 70;
+      const sigBoxH = 28;
+
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(sigBoxX, sigBoxY, sigBoxW, sigBoxH, 1.5, 1.5, "FD");
+
+      if (signatureDataUrl) {
+        doc.addImage(signatureDataUrl, "PNG", sigBoxX + 3, sigBoxY + 2, sigBoxW - 6, sigBoxH - 4);
+      }
+
+      // 5. Footer
+      doc.setTextColor(148, 163, 184);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      doc.text(`SiteGuard Verification System | Report ${reportId} | Page 1 of 1`, pageW / 2, 290, { align: "center" });
+
+      const dataUri = doc.output("datauristring");
+      return dataUri.split(",")[1];
+    }
+
+    // =========================================================================
+    // SUBMIT PDF TO GOOGLE APPS SCRIPT
     // =========================================================================
     async function confirmAndSubmit() {
       if (isSubmitting) return;
@@ -645,25 +850,39 @@
       updateSignButtonState();
 
       const btnText = document.getElementById("btnConfirmText");
-      btnText.innerHTML = '<span class="spinner"></span> Uploading to Drive...';
+      btnText.innerHTML = '<span class="spinner"></span> Building & Uploading PDF...';
 
       const signatureDataUrl = sigCanvas.toDataURL("image/png");
       const timestamp = new Date().toISOString();
-
-      const payload = {
-        action: "create",
-        timestamp,
-        zone: document.getElementById("zoneSelect").value,
-        inspector: document.getElementById("inspectorInput").value.trim(),
-        status: currentStatus,
-        gps: currentGps,
-        memo: document.getElementById("memoInput").value.trim(),
-        photo: watermarkedPhotoDataUrl,
-        signature: signatureDataUrl
-      };
+      const inspector = document.getElementById("inspectorInput").value.trim();
+      const memo = document.getElementById("memoInput").value.trim();
+      const reportId = "SG-" + timestamp.slice(0, 10).replace(/-/g, "") + "-" + Math.floor(1000 + Math.random() * 9000);
+      const safeInspector = inspector.replace(/[^a-zA-Z0-9_-]/g, "_") || "Inspector";
+      const fileName = `${reportId}_${safeInspector}.pdf`;
 
       try {
-        // Using mode: "no-cors" prevents browser CORS redirect blocks on Google Apps Script POST
+        const pdfBase64 = generateVerificationPdf({
+          reportId,
+          timestamp,
+          inspector,
+          status: currentStatus,
+          gps: currentGps,
+          memo,
+          signatureDataUrl
+        });
+
+        const payload = {
+          action: "create",
+          reportId,
+          timestamp,
+          inspector,
+          status: currentStatus,
+          gps: currentGps,
+          memo,
+          fileName,
+          pdfBase64
+        };
+
         await fetch(`${GAS_WEB_APP_URL}?action=create`, {
           method: "POST",
           mode: "no-cors",
@@ -671,30 +890,35 @@
           body: JSON.stringify(payload)
         });
 
-        // Reset form
-        rawImageElement = null;
-        watermarkedPhotoDataUrl = "";
-        document.getElementById("photoInput").value = "";
-        document.getElementById("photoPreviewWrap").classList.add("hidden");
-        document.getElementById("photoPlaceholder").classList.remove("hidden");
+        // Reset all 4 photo slots & form
+        ZONES.forEach((z) => {
+          zonePhotos[z.id] = { rawImg: null, dataUrl: "", width: 0, height: 0 };
+          document.getElementById(`input_${z.id}`).value = "";
+          document.getElementById(`preview_${z.id}`).classList.add("hidden");
+          document.getElementById(`placeholder_${z.id}`).classList.remove("hidden");
+          const badge = document.getElementById(`badge_${z.id}`);
+          badge.textContent = "Required";
+          badge.className = "shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600";
+        });
+        updatePhotoProgress();
         document.getElementById("memoInput").value = "";
         setStatus("Normal");
 
         isSubmitting = false;
-        btnText.textContent = "Confirm & Sign";
+        btnText.textContent = "Confirm & Save PDF";
         closeSignOffModal();
-        showToast("Submitted to Google Drive & Google Sheets.");
+        showToast(`PDF report (${fileName}) uploaded to Google Drive.`);
       } catch (err) {
         console.error(err);
         isSubmitting = false;
-        btnText.textContent = "Confirm & Sign";
+        btnText.textContent = "Confirm & Save PDF";
         updateSignButtonState();
-        showToast("Network error: " + err.message);
+        showToast("Error: " + err.message);
       }
     }
 
     // =========================================================================
-    // CORS-SAFE GET (FETCH WITH JSONP FALLBACK)
+    // ADMIN DASHBOARD: FETCH & RENDER ARCHIVED PDF REPORTS
     // =========================================================================
     function fetchListViaJsonp() {
       return new Promise((resolve, reject) => {
@@ -729,31 +953,14 @@
     function normalizeRecord(row) {
       const vals = Object.values(row || {});
       return {
-        timestamp: row.timestamp || row.Timestamp || row["일시"] || row["시간"] || vals[0] || "",
-        zone: row.zone || row.Zone || row["구역"] || vals[1] || "",
-        inspector: row.inspector || row.Inspector || row["담당자"] || vals[2] || "",
-        status: row.status || row.Status || row["상태"] || vals[3] || "Normal",
-        gps: row.gps || row.GPS || row["위치"] || vals[4] || "Location unavailable",
-        memo: row.memo || row.Memo || row.notes || row["메모"] || row["비고"] || vals[5] || "",
-        photoUrl: row.photoUrl || row.photo || row.Photo || row["사진URL"] || row["사진"] || vals[6] || "",
-        signatureUrl: row.signatureUrl || row.signature || row.Signature || row["서명URL"] || row["서명"] || vals[7] || ""
+        reportId: row.reportId || row.ReportId || vals[0] || "",
+        timestamp: row.timestamp || row.Timestamp || vals[1] || "",
+        inspector: row.inspector || row.Inspector || vals[2] || "",
+        status: row.status || row.Status || vals[3] || "Normal",
+        gps: row.gps || row.GPS || vals[4] || "Location unavailable",
+        memo: row.memo || row.Memo || vals[5] || "",
+        pdfUrl: row.pdfUrl || row.PdfUrl || row.photoUrl || vals[6] || ""
       };
-    }
-
-    function extractDriveFileId(url) {
-      if (!url || typeof url !== "string") return null;
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : null;
-    }
-
-    function toDisplayImageSrc(url) {
-      if (!url) return "";
-      if (url.startsWith("data:image/")) return url;
-      const fileId = extractDriveFileId(url);
-      if (fileId) {
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-      }
-      return url;
     }
 
     async function loadRecords(manualRefresh = false) {
@@ -778,7 +985,6 @@
           if (text.trim().startsWith("<")) throw new Error("HTML response");
           data = JSON.parse(text);
         } catch {
-          // Automatic JSONP fallback if browser blocks CORS
           data = await fetchListViaJsonp();
         }
 
@@ -802,7 +1008,7 @@
     }
 
     function renderAdminList() {
-      const zoneFilter = document.getElementById("filterZone").value;
+      const search = document.getElementById("filterSearch").value.trim().toLowerCase();
       const statusFilter = document.getElementById("filterStatus").value;
 
       document.getElementById("statTotal").textContent = records.length;
@@ -810,9 +1016,11 @@
       document.getElementById("statIssues").textContent = records.filter((r) => r.status !== "Normal").length;
 
       const filtered = records.filter((r) => {
-        const matchZone = zoneFilter === "ALL" || r.zone === zoneFilter;
         const matchStatus = statusFilter === "ALL" || r.status === statusFilter;
-        return matchZone && matchStatus;
+        const matchSearch = !search ||
+          String(r.inspector).toLowerCase().includes(search) ||
+          String(r.reportId).toLowerCase().includes(search);
+        return matchStatus && matchSearch;
       });
 
       const gridEl = document.getElementById("recordsGrid");
@@ -830,30 +1038,44 @@
         const badgeClass = isNormal
           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
           : "bg-rose-50 text-rose-700 border-rose-200";
-        const imgSrc = toDisplayImageSrc(rec.photoUrl);
-        const formattedTime = formatTimestamp(rec.timestamp);
+        const hasCoords = rec.gps && /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(rec.gps.trim());
 
         return `
-          <article onclick="openDetailModal(${idx})" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:border-slate-400 cursor-pointer transition flex flex-col">
-            <div class="h-44 bg-slate-900 relative overflow-hidden flex items-center justify-center">
-              ${imgSrc
-                ? `<img src="${escapeAttr(imgSrc)}" alt="Site photo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                   <div style="display:none" class="w-full h-full items-center justify-center text-xs text-slate-400 px-4 text-center">Stored in Google Drive (Tap to view)</div>`
-                : `<div class="text-xs text-slate-400">No photo available</div>`
-              }
-              <span class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${badgeClass}">
-                ${escapeHtml(rec.status)}
-              </span>
+          <article class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-bold text-slate-900 font-mono">${escapeHtml(rec.reportId || "PDF Report")}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeClass}">
+                  ${escapeHtml(rec.status)}
+                </span>
+              </div>
+              <p class="text-xs text-slate-700">
+                Inspector: <span class="font-semibold">${escapeHtml(rec.inspector)}</span>
+                <span class="text-slate-300 mx-1.5">|</span>
+                <span class="text-slate-500">${escapeHtml(formatTimestamp(rec.timestamp))}</span>
+              </p>
+              <p class="text-[11px] text-slate-500 font-mono">
+                GPS: ${escapeHtml(rec.gps)}
+                ${hasCoords ? `<a href="https://www.google.com/maps?q=${encodeURIComponent(rec.gps.trim())}" target="_blank" rel="noopener noreferrer" class="ml-2 text-slate-700 underline">Map &nearr;</a>` : ""}
+              </p>
+              ${rec.memo ? `<p class="text-xs text-slate-600 pt-0.5">${escapeHtml(rec.memo)}</p>` : ""}
             </div>
-            <div class="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between">
-              <div>
-                <p class="text-xs font-semibold text-slate-900 truncate">${escapeHtml(rec.zone)}</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Inspector: <span class="text-slate-700 font-medium">${escapeHtml(rec.inspector)}</span></p>
-              </div>
-              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                <span>${escapeHtml(formattedTime)}</span>
-                <span class="text-slate-600 font-medium">View Details &rarr;</span>
-              </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              ${rec.pdfUrl
+                ? `<a href="${escapeAttr(rec.pdfUrl)}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                    Open PDF &nearr;
+                  </a>`
+                : `<span class="text-xs text-slate-400">No PDF link</span>`
+              }
+              <button type="button" onclick="deleteRecord(${idx})"
+                class="px-2.5 py-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-medium transition">
+                Delete
+              </button>
             </div>
           </article>
         `;
@@ -862,103 +1084,10 @@
       window._filteredRecords = filtered;
     }
 
-    function openDetailModal(filteredIdx) {
+    async function deleteRecord(filteredIdx) {
       const rec = (window._filteredRecords || [])[filteredIdx];
       if (!rec) return;
-
-      const photoImg = toDisplayImageSrc(rec.photoUrl);
-      const sigImg = toDisplayImageSrc(rec.signatureUrl);
-      const isDrivePhoto = rec.photoUrl && rec.photoUrl.startsWith("http");
-      const isDriveSig = rec.signatureUrl && rec.signatureUrl.startsWith("http");
-      const hasCoords = rec.gps && /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(rec.gps.trim());
-
-      const detailBody = document.getElementById("detailBody");
-      detailBody.innerHTML = `
-        <div class="space-y-4">
-          <div class="rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
-            ${photoImg
-              ? `<img src="${escapeAttr(photoImg)}" alt="Verification photo" class="w-full max-h-80 object-contain mx-auto" onerror="this.style.display='none';" />`
-              : ""
-            }
-          </div>
-
-          ${isDrivePhoto
-            ? `<a href="${escapeAttr(rec.photoUrl)}" target="_blank" rel="noopener noreferrer"
-                class="block w-full text-center py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-800 transition">
-                Open Original Photo in Google Drive &nearr;
-              </a>`
-            : ""
-          }
-
-          <div class="grid grid-cols-2 gap-3 text-xs">
-            <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-              <p class="text-slate-400 text-[11px]">Inspector</p>
-              <p class="font-semibold text-slate-900 mt-0.5">${escapeHtml(rec.inspector)}</p>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-              <p class="text-slate-400 text-[11px]">Status</p>
-              <p class="font-semibold mt-0.5 ${rec.status === 'Normal' ? 'text-emerald-700' : 'text-rose-700'}">${escapeHtml(rec.status)}</p>
-            </div>
-            <div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-              <p class="text-slate-400 text-[11px]">Inspection Zone</p>
-              <p class="font-semibold text-slate-900 mt-0.5">${escapeHtml(rec.zone)}</p>
-            </div>
-            <div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-              <p class="text-slate-400 text-[11px]">Timestamp</p>
-              <p class="font-mono text-slate-800 mt-0.5">${escapeHtml(formatTimestamp(rec.timestamp))}</p>
-            </div>
-            <div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200 flex items-center justify-between gap-2">
-              <div>
-                <p class="text-slate-400 text-[11px]">GPS Coordinates</p>
-                <p class="font-mono text-slate-800 mt-0.5">${escapeHtml(rec.gps)}</p>
-              </div>
-              ${hasCoords
-                ? `<a href="https://www.google.com/maps?q=${encodeURIComponent(rec.gps.trim())}" target="_blank" rel="noopener noreferrer"
-                    class="shrink-0 text-xs font-medium text-slate-700 underline hover:text-slate-900">View Map &nearr;</a>`
-                : ""
-              }
-            </div>
-            ${rec.memo
-              ? `<div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-                  <p class="text-slate-400 text-[11px]">Inspection Notes</p>
-                  <p class="text-slate-800 mt-0.5 whitespace-pre-wrap">${escapeHtml(rec.memo)}</p>
-                </div>`
-              : ""
-            }
-          </div>
-
-          <div class="border border-slate-200 rounded-xl p-3 space-y-2">
-            <div class="flex items-center justify-between">
-              <p class="text-xs font-semibold text-slate-900">Electronic Signature & Attestation</p>
-              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">eIDAS / ESIGN Signed</span>
-            </div>
-            <div class="bg-slate-50 rounded-lg border border-slate-200 p-2 flex items-center justify-center min-h-[80px]">
-              ${sigImg
-                ? `<img src="${escapeAttr(sigImg)}" alt="Electronic signature" class="max-h-24 object-contain" onerror="this.style.display='none';" />`
-                : `<span class="text-xs text-slate-400">No signature image</span>`
-              }
-            </div>
-            ${isDriveSig
-              ? `<a href="${escapeAttr(rec.signatureUrl)}" target="_blank" rel="noopener noreferrer"
-                  class="block text-center text-xs font-medium text-slate-700 underline hover:text-slate-900">
-                  Open Signature in Google Drive &nearr;
-                </a>`
-              : ""
-            }
-          </div>
-        </div>
-      `;
-
-      document.getElementById("btnDeleteRecord").onclick = () => deleteRecord(rec);
-      document.getElementById("detailModal").classList.remove("hidden");
-    }
-
-    function closeDetailModal() {
-      document.getElementById("detailModal").classList.add("hidden");
-    }
-
-    async function deleteRecord(rec) {
-      if (!confirm("Delete this verification record from Google Sheets?")) return;
+      if (!confirm(`Delete report ${rec.reportId || ""} from Google Sheets?`)) return;
 
       try {
         await fetch(`${GAS_WEB_APP_URL}?action=delete`, {
@@ -967,16 +1096,15 @@
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
             action: "delete",
-            timestamp: rec.timestamp,
-            inspector: rec.inspector
+            reportId: rec.reportId,
+            timestamp: rec.timestamp
           })
         });
-        closeDetailModal();
         showToast("Delete request sent. Refreshing...");
         setTimeout(() => loadRecords(), 1200);
       } catch (err) {
         console.error(err);
-        showToast("Failed to delete record: " + err.message);
+        showToast("Failed to delete record.");
       }
     }
 
@@ -1013,7 +1141,7 @@
       el.textContent = msg;
       el.classList.remove("hidden");
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.add("hidden"), 3500);
+      toastTimer = setTimeout(() => el.classList.add("hidden"), 3800);
     }
   </script>
 </body>
