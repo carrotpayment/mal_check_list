@@ -2,2044 +2,1064 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SiteGuard Verification — Security Site &amp; Patrol Check-In</title>
-
-  <!-- Tailwind CSS CDN -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SiteGuard Verification — Field Security Check-In</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-          },
-        },
-      },
-    };
-  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .touch-none {
+      touch-action: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+  </style>
 </head>
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col">
 
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
-
-  <!-- ===================================================================== -->
-  <!-- TOP NAVIGATION HEADER                                                 -->
-  <!-- ===================================================================== -->
-  <header class="bg-slate-900/95 backdrop-blur-md text-white sticky top-0 z-30 border-b border-slate-800 shadow-lg">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3.5 gap-3">
-        <!-- App Identity & Mode Badge -->
-        <div class="flex items-center justify-between sm:justify-start gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/30 flex items-center justify-center shrink-0 shadow-inner">
-              <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-              </svg>
-            </div>
-            <div>
-              <div class="flex flex-wrap items-center gap-2">
-                <h1 class="text-base sm:text-lg font-bold tracking-tight leading-tight text-white">SiteGuard Verification</h1>
-                <!-- Mode Status Badge (Google Drive Live = Emerald | Local Demo = Amber) -->
-                <span id="header-mode-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30">
-                  <span id="header-mode-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  <span id="header-mode-text">Local Demo</span>
-                </span>
-              </div>
-              <p class="text-xs text-slate-400 mt-0.5">Security Site Verification &amp; Patrol Check-In</p>
-            </div>
+  <!-- Header -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <h1 class="text-sm sm:text-base font-semibold leading-tight truncate">SiteGuard Verification</h1>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span id="modeBadge" class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Google Drive Live
+            </span>
           </div>
         </div>
-
-        <!-- View Switcher Tabs -->
-        <nav class="grid grid-cols-2 bg-slate-950/80 p-1 rounded-xl border border-slate-800 w-full sm:w-auto">
-          <button
-            id="tab-field"
-            type="button"
-            class="px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 bg-sky-600 text-white shadow-sm"
-          >
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-            </svg>
-            <span>Field Check-In</span>
-          </button>
-
-          <button
-            id="tab-admin"
-            type="button"
-            class="px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 text-slate-300 hover:text-white"
-          >
-            <svg id="admin-lock-icon" class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-            <span>Admin Dashboard</span>
-            <span id="nav-count-badge" class="ml-0.5 px-1.5 py-0.5 text-xs rounded-full bg-slate-800 text-slate-200 font-bold">0</span>
-          </button>
-        </nav>
       </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex bg-slate-800 rounded-lg p-1 shrink-0">
+        <button id="tabField" onclick="switchTab('field')" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md bg-slate-700 text-white transition">
+          Field Check-In
+        </button>
+        <button id="tabAdmin" onclick="switchTab('admin')" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md text-slate-300 hover:text-white transition">
+          Admin
+        </button>
+      </nav>
     </div>
   </header>
 
-  <!-- ===================================================================== -->
-  <!-- MAIN CONTENT CONTAINER                                                -->
-  <!-- ===================================================================== -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-5">
 
-    <!-- =================================================================== -->
-    <!-- VIEW 1: FIELD CHECK-IN (MOBILE-OPTIMIZED)                           -->
-    <!-- =================================================================== -->
-    <section id="view-field" class="max-w-lg mx-auto">
-      <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 overflow-hidden">
-        <!-- Banner -->
-        <div class="bg-gradient-to-r from-slate-800 via-slate-900 to-sky-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between gap-3">
-          <div>
-            <h2 class="text-base font-bold text-white tracking-tight">On-Site Security Check-In</h2>
-            <p class="text-xs text-slate-300 mt-0.5">Live photo, audit watermark, GPS &amp; electronic sign-off.</p>
-          </div>
-          <span class="px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-300 text-xs font-semibold border border-sky-400/30 shrink-0">
-            Officer Portal
-          </span>
+    <!-- ==================== FIELD CHECK-IN VIEW ==================== -->
+    <section id="viewField" class="max-w-lg mx-auto space-y-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-4">
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">On-Site Security Verification</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Capture a live site photo and complete electronic sign-off to log inspection.</p>
         </div>
 
-        <!-- Check-In Form -->
-        <form id="checkin-form" class="p-5 sm:p-6 space-y-5" novalidate>
-          <!-- Officer Name -->
-          <div>
-            <label for="officer-name" class="block text-sm font-semibold text-slate-200 mb-1.5">
-              Officer Name <span class="text-rose-400">*</span>
-            </label>
-            <input
-              type="text"
-              id="officer-name"
-              placeholder="e.g., Alex Morgan"
-              autocomplete="name"
-              class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950/70 text-white placeholder-slate-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-base transition"
-              required
-            />
-          </div>
+        <!-- Inspector Name -->
+        <div>
+          <label for="inspectorInput" class="block text-xs font-medium text-slate-700 mb-1">Inspector Name *</label>
+          <input id="inspectorInput" type="text" placeholder="e.g., Alex Morgan"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900" />
+        </div>
 
-          <!-- Inspection Zone -->
-          <div>
-            <label for="zone-select" class="block text-sm font-semibold text-slate-200 mb-1.5">
-              Inspection Zone <span class="text-rose-400">*</span>
-            </label>
-            <select
-              id="zone-select"
-              class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950/70 text-white focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-base transition"
-            >
-              <option value="Zone A - Main Entrance / Lobby">Zone A - Main Entrance / Lobby</option>
-              <option value="Zone B - Exhibition / Equipment">Zone B - Exhibition / Equipment</option>
-              <option value="Zone C - Perimeter / Storage">Zone C - Perimeter / Storage</option>
-              <option value="Zone D - Sensor / Detection Area">Zone D - Sensor / Detection Area</option>
-            </select>
-          </div>
+        <!-- Inspection Zone -->
+        <div>
+          <label for="zoneSelect" class="block text-xs font-medium text-slate-700 mb-1">Inspection Zone *</label>
+          <select id="zoneSelect"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900">
+            <option value="Zone A - Main Entrance & Perimeter">Zone A - Main Entrance & Perimeter</option>
+            <option value="Zone B - Exhibition Booth & Hardware">Zone B - Exhibition Booth & Hardware</option>
+            <option value="Zone C - Equipment Storage & Power">Zone C - Equipment Storage & Power</option>
+            <option value="Zone D - Sensor / Detection Area">Zone D - Sensor / Detection Area</option>
+          </select>
+        </div>
 
-          <!-- Photo Capture -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-sm font-semibold text-slate-200">
-                Site Photo <span class="text-rose-400">*</span>
-              </label>
-              <span class="text-xs text-slate-400">Rear camera &bull; Auto-watermarked</span>
-            </div>
-
-            <!-- Native Rear Camera File Input -->
-            <input
-              type="file"
-              id="photo-input"
-              accept="image/*"
-              capture="environment"
-              class="hidden"
-            />
-
-            <!-- Large Touch-Friendly Capture Button -->
-            <button
-              type="button"
-              id="photo-trigger-btn"
-              class="w-full py-9 px-4 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950/60 hover:bg-slate-800/70 hover:border-sky-500/70 active:scale-[0.99] transition flex flex-col items-center justify-center gap-3 text-slate-300"
-            >
-              <div class="w-14 h-14 rounded-2xl bg-sky-600/20 border border-sky-500/40 text-sky-400 flex items-center justify-center shadow-sm">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-                </svg>
-              </div>
-              <div class="text-center">
-                <p class="text-base font-bold text-white">Tap to Take Site Photo</p>
-                <p class="text-xs text-slate-400 mt-0.5">Compressed to 960px JPEG with embedded audit stamp</p>
-              </div>
+        <!-- Condition Status -->
+        <div>
+          <span class="block text-xs font-medium text-slate-700 mb-1.5">Site Condition *</span>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" id="btnStatusNormal" onclick="setStatus('Normal')"
+              class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-emerald-600 bg-emerald-50 text-emerald-800 text-sm font-medium transition">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              Normal
             </button>
+            <button type="button" id="btnStatusIssue" onclick="setStatus('Issue Detected')"
+              class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              Issue Detected
+            </button>
+          </div>
+        </div>
 
-            <!-- Watermarked Photo Preview -->
-            <div id="photo-preview-wrapper" class="hidden space-y-2.5">
-              <div class="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-md">
-                <img
-                  id="photo-preview-img"
-                  src=""
-                  alt="Watermarked site photo preview"
-                  class="w-full max-h-80 object-contain mx-auto block"
-                />
-                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-slate-950/85 text-emerald-300 text-xs font-semibold backdrop-blur-sm flex items-center gap-1.5 border border-emerald-500/30">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  Watermark Burned
-                </span>
-              </div>
-              <button
-                type="button"
-                id="retake-photo-btn"
-                class="w-full py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-slate-200 transition flex items-center justify-center gap-1.5"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
-                Retake Photo
-              </button>
+        <!-- Live Camera Capture -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1.5">Live Verification Photo *</label>
+          <input id="photoInput" type="file" accept="image/*" capture="environment" class="hidden" />
+          <div id="photoDropArea" onclick="document.getElementById('photoInput').click()"
+            class="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition">
+            <div id="photoPlaceholder" class="space-y-1.5">
+              <svg class="w-8 h-8 mx-auto text-slate-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+              </svg>
+              <p class="text-sm font-medium text-slate-700">Tap to Open Camera</p>
+              <p class="text-xs text-slate-400">Timestamp, zone, and inspector watermark applied automatically</p>
+            </div>
+            <div id="photoPreviewWrap" class="hidden space-y-2">
+              <img id="photoPreview" alt="Watermarked preview" class="w-full max-h-72 object-contain rounded-lg bg-slate-900 mx-auto" />
+              <p class="text-xs text-slate-500">Tap image to retake photo</p>
             </div>
           </div>
+        </div>
 
-          <!-- GPS Location -->
-          <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-            <div class="flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                  </svg>
-                  GPS Location
-                </p>
-                <p id="gps-status-text" class="text-xs text-slate-400 mt-1 truncate">Location unavailable</p>
-              </div>
-              <button
-                type="button"
-                id="gps-btn"
-                class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition shrink-0 flex items-center gap-1.5"
-              >
-                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.364-5.364l-1.414 1.414M8.05 15.95l-1.414 1.414m0-11.314l1.414 1.414m7.9 7.9l1.414 1.414M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Get GPS</span>
-              </button>
-            </div>
+        <!-- GPS Coordinates -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-medium text-slate-700">GPS Coordinates</label>
+            <button type="button" onclick="captureGPS()" class="text-xs font-medium text-slate-700 hover:text-slate-900 underline">
+              Refresh GPS
+            </button>
           </div>
-
-          <!-- Site Status Toggle -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-200 mb-2">
-              Site Status <span class="text-rose-400">*</span>
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                data-status="Normal"
-                class="status-option-btn py-3.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/15 text-emerald-300 font-bold text-sm sm:text-base transition flex items-center justify-center gap-2 shadow-sm"
-              >
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                Normal
-              </button>
-              <button
-                type="button"
-                data-status="Issue Reported"
-                class="status-option-btn py-3.5 px-3 rounded-xl border-2 border-slate-700 bg-slate-950/60 text-slate-400 hover:border-slate-600 hover:text-slate-200 font-bold text-sm sm:text-base transition flex items-center justify-center gap-2"
-              >
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                Issue Reported
-              </button>
-            </div>
+          <div id="gpsDisplay" class="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 text-xs text-slate-600 font-mono">
+            Not captured yet (tap Refresh GPS or submit to auto-fetch)
           </div>
+        </div>
 
-          <!-- Notes -->
-          <div>
-            <label for="notes-input" class="block text-sm font-semibold text-slate-200 mb-1.5">
-              Notes <span id="notes-hint" class="text-xs font-normal text-slate-400">(Optional)</span>
-            </label>
-            <textarea
-              id="notes-input"
-              rows="3"
-              placeholder="Document equipment condition, sensor LEDs, lock status, or any security observations..."
-              class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950/70 text-white placeholder-slate-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-sm sm:text-base transition resize-none"
-            ></textarea>
-          </div>
+        <!-- Notes / Memo -->
+        <div>
+          <label for="memoInput" class="block text-xs font-medium text-slate-700 mb-1">Inspection Notes (Optional)</label>
+          <textarea id="memoInput" rows="2" placeholder="Record any seal numbers, anomalies, or sensor checks..."
+            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"></textarea>
+        </div>
 
-          <!-- Submit Button -->
-          <button
-            type="submit"
-            id="submit-btn"
-            class="w-full py-4 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-[0.99] text-white font-bold text-base shadow-lg shadow-sky-900/40 transition flex items-center justify-center gap-2"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Submit Verification
-          </button>
-        </form>
+        <!-- Submit Trigger -->
+        <button type="button" onclick="openSignOffModal()"
+          class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-semibold shadow-sm transition">
+          Submit Verification & Sign Off
+        </button>
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 2: ADMIN DASHBOARD (PIN PROTECTED)                             -->
-    <!-- =================================================================== -->
-    <section id="view-admin" class="hidden space-y-6">
-      <!-- Dashboard Top Bar -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <!-- ==================== ADMIN DASHBOARD VIEW ==================== -->
+    <section id="viewAdmin" class="hidden space-y-4">
+      <!-- Top Controls -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Admin Dashboard</h2>
-            <span id="admin-mode-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30">
-              <span id="admin-mode-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-              <span id="admin-mode-text">Local Demo</span>
-            </span>
-          </div>
-          <p class="text-sm text-slate-400 mt-1">Audit log of verified patrol check-ins, sensor inspections, and signed evidence.</p>
+          <h2 class="text-base font-semibold text-slate-900">Admin Verification Log</h2>
+          <p class="text-xs text-slate-500">Synced directly with Google Sheets & Google Drive</p>
         </div>
-
-        <!-- Admin Controls -->
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            id="refresh-btn"
-            class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
-          >
-            <svg id="refresh-icon" class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="loadRecords(true)"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-medium text-slate-700 hover:bg-slate-50 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
             Refresh
           </button>
-
-          <!-- Visible only in Local Demo mode -->
-          <button
-            type="button"
-            id="load-sample-btn"
-            class="px-3.5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+          <button type="button" id="btnLoadSample" onclick="loadSampleData()"
+            class="hidden px-3 py-1.5 rounded-lg bg-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-300 transition">
             Load Sample Data
           </button>
-
-          <button
-            type="button"
-            id="lock-admin-btn"
-            class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-            </svg>
+          <button type="button" onclick="lockAdmin()"
+            class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition">
             Lock Admin
           </button>
         </div>
       </div>
 
       <!-- KPI Summary Cards -->
-      <div class="grid grid-cols-3 gap-3 sm:gap-4">
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-sm">
-          <p class="text-xs sm:text-sm font-semibold text-slate-400">Total Checks</p>
-          <p id="stat-total" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0</p>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
+          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Total Logs</p>
+          <p id="statTotal" class="text-xl font-bold text-slate-900 mt-1">0</p>
         </div>
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-emerald-500/25 shadow-sm">
-          <p class="text-xs sm:text-sm font-semibold text-emerald-400">Normal</p>
-          <p id="stat-normal" class="text-2xl sm:text-3xl font-extrabold text-emerald-300 mt-1">0</p>
+        <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
+          <p class="text-[11px] font-medium text-emerald-600 uppercase tracking-wide">Normal</p>
+          <p id="statNormal" class="text-xl font-bold text-emerald-700 mt-1">0</p>
         </div>
-        <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-rose-500/25 shadow-sm">
-          <p class="text-xs sm:text-sm font-semibold text-rose-400">Issues Reported</p>
-          <p id="stat-issues" class="text-2xl sm:text-3xl font-extrabold text-rose-300 mt-1">0</p>
-        </div>
-      </div>
-
-      <!-- Filter Bar -->
-      <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-          <div>
-            <label for="filter-zone" class="block text-xs font-semibold text-slate-400 mb-1">Inspection Zone</label>
-            <select
-              id="filter-zone"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              <option value="ALL">All Zones</option>
-              <option value="Zone A - Main Entrance / Lobby">Zone A - Main Entrance / Lobby</option>
-              <option value="Zone B - Exhibition / Equipment">Zone B - Exhibition / Equipment</option>
-              <option value="Zone C - Perimeter / Storage">Zone C - Perimeter / Storage</option>
-              <option value="Zone D - Sensor / Detection Area">Zone D - Sensor / Detection Area</option>
-            </select>
-          </div>
-          <div>
-            <label for="filter-status" class="block text-xs font-semibold text-slate-400 mb-1">Status</label>
-            <select
-              id="filter-status"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="Normal">Normal</option>
-              <option value="Issue Reported">Issue Reported</option>
-            </select>
-          </div>
-        </div>
-        <div class="text-xs sm:text-sm text-slate-400 font-medium sm:text-right sm:pb-2">
-          Showing <span id="filtered-count" class="font-bold text-white">0</span> records
+        <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
+          <p class="text-[11px] font-medium text-rose-600 uppercase tracking-wide">Issues</p>
+          <p id="statIssues" class="text-xl font-bold text-rose-700 mt-1">0</p>
         </div>
       </div>
 
-      <!-- Loading State for Cloud Sync -->
-      <div id="dashboard-loading" class="hidden bg-slate-900 rounded-2xl border border-slate-800 py-14 px-6 text-center">
-        <div class="w-10 h-10 mx-auto border-4 border-sky-500/30 border-t-sky-400 rounded-full animate-spin mb-3"></div>
-        <p class="text-sm font-semibold text-slate-300">Syncing records from Google Drive &amp; Sheets...</p>
+      <!-- Filters -->
+      <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex flex-wrap gap-2.5">
+        <select id="filterZone" onchange="renderAdminList()"
+          class="flex-1 min-w-[180px] rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-slate-900">
+          <option value="ALL">All Inspection Zones</option>
+          <option value="Zone A - Main Entrance & Perimeter">Zone A - Main Entrance & Perimeter</option>
+          <option value="Zone B - Exhibition Booth & Hardware">Zone B - Exhibition Booth & Hardware</option>
+          <option value="Zone C - Equipment Storage & Power">Zone C - Equipment Storage & Power</option>
+          <option value="Zone D - Sensor / Detection Area">Zone D - Sensor / Detection Area</option>
+        </select>
+        <select id="filterStatus" onchange="renderAdminList()"
+          class="w-40 rounded-lg border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-slate-900">
+          <option value="ALL">All Statuses</option>
+          <option value="Normal">Normal</option>
+          <option value="Issue Detected">Issue Detected</option>
+        </select>
       </div>
 
-      <!-- Responsive Submissions Grid -->
-      <div id="records-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        <!-- Dynamically rendered via JavaScript -->
+      <!-- Records List -->
+      <div id="adminLoading" class="hidden bg-white rounded-xl border border-slate-200 p-8 text-center text-xs text-slate-500">
+        Syncing records from Google Sheets...
       </div>
-
-      <!-- Empty State -->
-      <div id="empty-state" class="hidden bg-slate-900 rounded-2xl border border-dashed border-slate-700 py-14 px-6 text-center">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mb-3">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
-        </div>
-        <h3 class="text-base font-bold text-slate-200">No verification records found</h3>
-        <p id="empty-state-subtitle" class="text-sm text-slate-400 mt-1">Submit a check-in from the Field Check-In tab or click "Load Sample Data" to preview.</p>
+      <div id="recordsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      <div id="emptyState" class="hidden bg-white rounded-xl border border-slate-200 p-10 text-center space-y-1">
+        <p class="text-sm font-medium text-slate-700">No verification records found</p>
+        <p class="text-xs text-slate-400">Submitted field check-ins will appear here automatically.</p>
       </div>
     </section>
   </main>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 1: VERIFICATION & SIGN-OFF OVERLAY (INTERNATIONAL COMPLIANCE)   -->
-  <!-- ===================================================================== -->
-  <div id="signature-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/85 backdrop-blur-sm">
-    <div class="bg-slate-900 text-slate-100 rounded-t-3xl sm:rounded-2xl max-w-lg w-full max-h-[94vh] overflow-hidden shadow-2xl border border-slate-700 flex flex-col">
-      <!-- Header -->
-      <div class="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <h3 class="text-base font-bold leading-tight text-white truncate">Verification &amp; Sign-Off</h3>
-            <p class="text-xs text-slate-400 truncate">Electronic Attestation &amp; Chain-of-Custody</p>
-          </div>
+  <!-- ==================== VERIFICATION & SIGN-OFF OVERLAY ==================== -->
+  <div id="signOffModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-xl overflow-hidden max-h-[92vh] flex flex-col">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-semibold text-slate-900">Verification & Electronic Sign-Off</h3>
+          <p class="text-[11px] text-slate-500">eIDAS / ESIGN Act / Chain-of-Custody Attestation</p>
         </div>
-        <button
-          type="button"
-          id="close-signature-modal"
-          class="p-2 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition"
-          aria-label="Close Verification Overlay"
-        >
+        <button type="button" onclick="closeSignOffModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <!-- Body -->
-      <div class="overflow-y-auto p-5 space-y-4">
-        <!-- Quick Summary -->
-        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div class="space-y-0.5 min-w-0">
-            <p class="text-slate-400">Officer: <span id="sig-summary-officer" class="font-bold text-white">-</span></p>
-            <p class="text-slate-400 truncate">Zone: <span id="sig-summary-zone" class="font-bold text-white">-</span></p>
-          </div>
-          <span id="sig-summary-status" class="px-2.5 py-1 rounded-full font-bold text-xs shrink-0">Normal</span>
-        </div>
-
-        <!-- International Compliance Attestation -->
-        <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-3.5 space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Compliance Attestation</h4>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30">eIDAS / ESIGN / CoC</span>
-          </div>
-          <div class="max-h-28 overflow-y-auto pr-1 text-xs text-slate-300 space-y-1.5 leading-relaxed">
-            <p><strong>1. Real-Time On-Site Capture:</strong> I certify that the attached photograph was captured live on-site at the stated inspection zone and has not been altered, falsified, or reused from prior records.</p>
-            <p><strong>2. Physical Inspection Responsibility:</strong> I confirm that I personally conducted the physical inspection of all assigned assets, perimeters, and sensors in accordance with Chain-of-Custody (CoC) protocols, and that the reported status and notes are true and complete.</p>
-            <p><strong>3. Electronic Signature &amp; Audit Retention Consent:</strong> Pursuant to international electronic transaction frameworks (including the EU eIDAS Regulation and the U.S. ESIGN Act), I agree that my handwritten electronic signature below holds the same legal effect as a wet-ink signature and consent to the secure archival of this photograph, signature, timestamp, and GPS metadata in the security audit log.</p>
-          </div>
+      <div class="p-5 overflow-y-auto space-y-4">
+        <!-- International Attestation Terms -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-700 space-y-2 leading-relaxed">
+          <p class="font-semibold text-slate-900">Declaration of Authenticity & Chain-of-Custody</p>
+          <p>1. <strong>Live Physical Inspection:</strong> I attest that the attached photograph was captured live on-site at the designated inspection zone and has not been altered or retrieved from archived media.</p>
+          <p>2. <strong>Accuracy of Record:</strong> All reported status details, timestamps, GPS metadata, and observations accurately reflect physical site conditions at the time of inspection.</p>
+          <p>3. <strong>Electronic Signature Consent:</strong> Pursuant to applicable electronic signature standards (eIDAS Regulation / U.S. ESIGN Act), I consent to execute this verification electronically and acknowledge that my signature and audit log will be archived for security compliance.</p>
         </div>
 
         <!-- Mandatory Agreement Checkbox -->
-        <label for="terms-agree-checkbox" class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 cursor-pointer transition select-none">
-          <input
-            type="checkbox"
-            id="terms-agree-checkbox"
-            class="mt-0.5 w-5 h-5 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500 shrink-0 cursor-pointer"
-          />
-          <span class="text-xs sm:text-sm font-medium text-slate-200 leading-snug">
-            I confirm this inspection is accurate and agree to the <strong>Compliance Attestation &amp; Audit Log Retention Terms</strong> above.
-          </span>
+        <label class="flex items-start gap-2.5 cursor-pointer select-none">
+          <input id="agreeCheckbox" type="checkbox" onchange="updateSignButtonState()"
+            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+          <span class="text-xs text-slate-700">I have read and agree to the attestation terms above and confirm this inspection record is authentic.</span>
         </label>
 
-        <!-- High-DPI Mobile Touch Signature Pad -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <label class="text-sm font-bold text-slate-200">
-              Officer Signature <span class="text-rose-400">*</span>
-            </label>
-            <button
-              type="button"
-              id="clear-signature-btn"
-              class="text-xs font-semibold text-slate-400 hover:text-rose-400 px-2.5 py-1 rounded-lg hover:bg-rose-500/10 transition flex items-center gap-1"
-            >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-              </svg>
+        <!-- Touch Signature Pad -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium text-slate-700">Inspector Signature (Sign with finger or stylus) *</span>
+            <button type="button" onclick="clearSignature()" class="text-xs text-rose-600 hover:text-rose-700 font-medium">
               Clear
             </button>
           </div>
-
-          <div id="signature-pad-container" class="relative w-full h-44 rounded-2xl border-2 border-dashed border-slate-600 bg-white overflow-hidden shadow-inner">
-            <canvas
-              id="signature-canvas"
-              class="w-full h-full block touch-none cursor-crosshair"
-            ></canvas>
-            <!-- Signature baseline -->
-            <div class="pointer-events-none absolute bottom-8 left-6 right-6 border-b border-slate-200"></div>
-            <!-- Placeholder guide -->
-            <div id="signature-placeholder" class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-slate-400 select-none">
-              <svg class="w-6 h-6 mb-1 opacity-60" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
-              </svg>
-              <span class="text-xs font-medium">Sign here with finger, stylus, or mouse</span>
-            </div>
+          <div class="relative rounded-xl border-2 border-slate-300 bg-white overflow-hidden">
+            <canvas id="signatureCanvas" class="w-full h-40 touch-none block cursor-crosshair"></canvas>
+            <span id="sigPlaceholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-slate-400">
+              Sign here
+            </span>
           </div>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="px-5 py-4 border-t border-slate-800 bg-slate-950 flex items-center gap-3 shrink-0">
-        <button
-          type="button"
-          id="cancel-signature-btn"
-          class="flex-1 py-3 px-4 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-300 text-sm font-bold transition"
-        >
+      <div class="px-5 py-4 border-t border-slate-200 bg-slate-50 flex items-center gap-2.5">
+        <button type="button" onclick="closeSignOffModal()"
+          class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 bg-white text-slate-700 text-sm font-medium hover:bg-slate-100 transition">
           Cancel
         </button>
-        <button
-          type="button"
-          id="confirm-signature-btn"
-          class="flex-[1.6] py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-[0.99] text-white text-sm font-bold shadow-md transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-          disabled
-        >
-          <svg id="confirm-check-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-          <svg id="confirm-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-          </svg>
-          <span id="confirm-signature-label">Confirm &amp; Sign</span>
+        <button type="button" id="btnConfirmSign" onclick="confirmAndSubmit()" disabled
+          class="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition flex items-center justify-center gap-2">
+          <span id="btnConfirmText">Confirm & Sign</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 2: ADMIN PIN AUTHENTICATION                                     -->
-  <!-- ===================================================================== -->
-  <div id="pin-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-    <div class="bg-slate-900 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-700">
-      <div class="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-          </svg>
-          <h3 class="text-base font-bold text-white">Admin Access</h3>
-        </div>
-        <button
-          type="button"
-          id="close-pin-modal"
-          class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
-          aria-label="Close PIN modal"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+  <!-- ==================== ADMIN PIN MODAL ==================== -->
+  <div id="pinModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl p-5 space-y-4">
+      <div>
+        <h3 class="text-base font-semibold text-slate-900">Admin Access</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Enter administrator PIN to view verification logs.</p>
+      </div>
+      <div>
+        <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="Enter PIN"
+          onkeydown="if(event.key==='Enter') verifyPin()"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-center text-lg tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-slate-900" />
+        <p id="pinError" class="hidden text-xs text-rose-600 mt-1.5 text-center">Incorrect PIN. Please try again.</p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closePinModal()"
+          class="flex-1 py-2 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 hover:bg-slate-50">
+          Cancel
+        </button>
+        <button type="button" onclick="verifyPin()"
+          class="flex-1 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800">
+          Unlock
         </button>
       </div>
-
-      <form id="pin-form" class="p-5 space-y-4">
-        <p class="text-sm text-slate-300">Enter the administrator PIN to unlock the monitoring dashboard.</p>
-        <div>
-          <label for="pin-input" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Admin PIN</label>
-          <input
-            type="password"
-            id="pin-input"
-            inputmode="numeric"
-            autocomplete="off"
-            placeholder="••••"
-            class="w-full px-4 py-3 text-center text-xl font-bold tracking-[0.4em] rounded-xl border border-slate-700 bg-slate-950 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-            required
-          />
-          <p id="pin-error-text" class="hidden text-xs font-semibold text-rose-400 mt-1.5">Incorrect PIN. Please try again.</p>
-        </div>
-        <div class="flex items-center gap-2.5 pt-1">
-          <button
-            type="button"
-            id="cancel-pin-btn"
-            class="flex-1 py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="flex-1 py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold shadow-sm transition"
-          >
-            Unlock
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 3: RECORD DETAIL & GOOGLE DRIVE EVIDENCE MODAL                  -->
-  <!-- ===================================================================== -->
-  <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
-    <div class="bg-slate-900 text-slate-100 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-700 flex flex-col">
-      <!-- Header -->
-      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950 shrink-0">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <span id="modal-status-badge" class="px-2.5 py-1 rounded-full text-xs font-bold shrink-0">Normal</span>
-          <h3 id="modal-zone-title" class="text-base font-bold text-white truncate">Zone</h3>
-        </div>
-        <button
-          type="button"
-          id="close-detail-modal"
-          class="p-2 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition"
-          aria-label="Close detail modal"
-        >
+  <!-- ==================== RECORD DETAIL MODAL ==================== -->
+  <div id="detailModal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-slate-900">Verification Record Details</h3>
+        <button type="button" onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-700 p-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
-
-      <!-- Body -->
-      <div class="overflow-y-auto p-5 space-y-5">
-        <!-- Full Photo Preview -->
-        <div class="space-y-2">
-          <div class="rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
-            <img
-              id="modal-image"
-              src=""
-              alt="Full watermarked site photo"
-              onerror="this.onerror=null;this.src='https://placehold.co/800x500/0f172a/94a3b8?text=Photo+Preview+Unavailable';"
-              class="w-full max-h-[48vh] object-contain mx-auto block"
-            />
-          </div>
-          <!-- Direct Drive Links (Shown when photoDriveUrl / sigDriveUrl exist) -->
-          <div id="modal-drive-links-bar" class="hidden flex flex-wrap items-center gap-2 pt-1">
-            <a
-              id="modal-photo-drive-link"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hidden px-3.5 py-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 border border-sky-500/40 text-sky-300 text-xs font-bold transition items-center gap-1.5"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
-              Open Photo in Drive
-            </a>
-            <a
-              id="modal-sig-drive-link"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hidden px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition items-center gap-1.5"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
-              Open Signature in Drive
-            </a>
-          </div>
-        </div>
-
-        <!-- Metadata Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400">Officer Name</p>
-            <p id="modal-officer" class="font-bold text-white mt-0.5">-</p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400">Record ID</p>
-            <p id="modal-record-id" class="font-mono text-xs font-semibold text-slate-300 mt-1 truncate">-</p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400">Server Timestamp</p>
-            <p id="modal-server-time" class="font-bold text-emerald-300 mt-0.5">-</p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <p class="text-xs font-semibold text-slate-400">Client Timestamp</p>
-            <p id="modal-client-time" class="font-semibold text-slate-200 mt-0.5">-</p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 sm:col-span-2">
-            <p class="text-xs font-semibold text-slate-400">GPS Coordinates</p>
-            <div class="flex items-center justify-between gap-2 mt-0.5">
-              <p id="modal-gps" class="font-medium text-slate-200 break-all">Location unavailable</p>
-              <a
-                id="modal-map-link"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="hidden px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition shrink-0"
-              >
-                Google Maps
-              </a>
-            </div>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 sm:col-span-2">
-            <p class="text-xs font-semibold text-slate-400">Notes</p>
-            <p id="modal-notes" class="text-slate-200 mt-1 whitespace-pre-wrap leading-relaxed">-</p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 sm:col-span-2">
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <p class="text-xs font-semibold text-slate-400">Electronic Signature &amp; Attestation</p>
-              <span id="modal-attestation-badge" class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30 text-[11px] font-bold">eIDAS / ESIGN Signed</span>
-            </div>
-            <div class="bg-white rounded-xl border border-slate-700 p-2.5 flex items-center justify-center min-h-[96px]">
-              <img
-                id="modal-signature-img"
-                src=""
-                alt="Officer electronic signature"
-                onerror="this.onerror=null;this.classList.add('hidden');document.getElementById('modal-no-signature').classList.remove('hidden');"
-                class="max-h-24 w-auto object-contain hidden"
-              />
-              <p id="modal-no-signature" class="text-xs text-slate-500">No signature image available</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-950 flex items-center justify-between shrink-0">
-        <button
-          type="button"
-          id="modal-delete-btn"
-          class="px-3.5 py-2 rounded-xl text-rose-400 hover:bg-rose-500/15 text-sm font-semibold transition flex items-center gap-1.5"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-          </svg>
+      <div id="detailBody" class="p-5 overflow-y-auto space-y-4"></div>
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button type="button" id="btnDeleteRecord" class="text-xs font-medium text-rose-600 hover:text-rose-700">
           Delete Record
         </button>
-        <button
-          type="button"
-          id="modal-close-footer-btn"
-          class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"
-        >
+        <button type="button" onclick="closeDetailModal()"
+          class="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800">
           Close
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 4: CUSTOM CONFIRMATION MODAL (REPLACES NATIVE confirm())        -->
-  <!-- ===================================================================== -->
-  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-    <div class="bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-700">
-      <h3 id="confirm-title" class="text-lg font-bold text-white">Confirm Action</h3>
-      <p id="confirm-message" class="text-sm text-slate-300 leading-relaxed"></p>
-      <div class="flex items-center justify-end gap-2 pt-2">
-        <button
-          type="button"
-          id="confirm-cancel-btn"
-          class="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold transition"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          id="confirm-ok-btn"
-          class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold transition"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-medium shadow-lg transition"></div>
 
-  <!-- ===================================================================== -->
-  <!-- TOAST NOTIFICATION CONTAINER (REPLACES NATIVE alert())                -->
-  <!-- ===================================================================== -->
-  <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 w-[92%] max-w-md pointer-events-none"></div>
-
-  <!-- ===================================================================== -->
-  <!-- APPLICATION LOGIC                                                     -->
-  <!-- ===================================================================== -->
   <script>
-    (function () {
-      'use strict';
+    // =========================================================================
+    // CONFIGURATION
+    // =========================================================================
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydTw0RIMaY6X_sGdIErAUqkoRcZrzEgSdpdsu9N_RodaKtp5yVvkTzzhAYL0IBK8R4/exec";
+    const ADMIN_PIN = "1234";
+    const LOCAL_STORAGE_KEY = "siteguard_verifications_v1";
 
-      // =======================================================================
-      // 1. CORE CONFIGURATION
-      // =======================================================================
-      // Paste your deployed Google Apps Script Web App URL below.
-      // Leave empty or as "YOUR_GAS_WEB_APP_URL" to run in Local Demo mode.
-      const GAS_WEB_APP_URL = "YOUR_GAS_WEB_APP_URL";
-      const ADMIN_PIN = "1234";
+    const IS_LIVE_MODE = Boolean(
+      GAS_WEB_APP_URL &&
+      GAS_WEB_APP_URL.startsWith("https://script.google.com/macros/s/") &&
+      !GAS_WEB_APP_URL.includes("YOUR_GAS_WEB_APP_URL")
+    );
 
-      const LOCAL_STORAGE_KEY = "siteguard_gas_demo_records_v1";
-      const ADMIN_SESSION_KEY = "siteguard_gas_admin_unlocked_v1";
+    // =========================================================================
+    // STATE
+    // =========================================================================
+    let currentStatus = "Normal";
+    let rawImageElement = null;
+    let watermarkedPhotoDataUrl = "";
+    let currentGps = "Location unavailable";
+    let records = [];
+    let isSubmitting = false;
 
-      // Automatic Mode Detection
-      const isLiveMode = Boolean(
-        GAS_WEB_APP_URL &&
-        GAS_WEB_APP_URL.trim() !== "" &&
-        GAS_WEB_APP_URL.trim() !== "YOUR_GAS_WEB_APP_URL" &&
-        /^https?:\/\//i.test(GAS_WEB_APP_URL.trim())
-      );
+    // Signature pad state
+    let sigCanvas, sigCtx;
+    let isDrawing = false;
+    let hasSignature = false;
 
-      // =======================================================================
-      // 2. APPLICATION STATE
-      // =======================================================================
-      let records = [];
-      let currentView = 'field'; // 'field' | 'admin'
-      let isAdminUnlocked = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+    // =========================================================================
+    // INITIALIZATION
+    // =========================================================================
+    document.addEventListener("DOMContentLoaded", () => {
+      updateModeBadge();
+      initSignaturePad();
 
-      // Field check-in transient state
-      let selectedStatus = 'Normal';
-      let loadedOriginalImage = null;
-      let capturedClientTimestamp = '';
-      let watermarkedPhotoBase64 = '';
-      let currentGps = {
-        lat: null,
-        lng: null,
-        gps: 'Location unavailable',
-      };
-
-      // Signature pad state
-      let isDrawing = false;
-      let hasSignatureStroke = false;
-      let sigCtx = null;
-
-      // Active detail record & confirm callback
-      let activeDetailRecordId = null;
-      let pendingConfirmAction = null;
-
-      // =======================================================================
-      // 3. DOM REFERENCES
-      // =======================================================================
-      const headerModeBadge = document.getElementById('header-mode-badge');
-      const headerModeDot = document.getElementById('header-mode-dot');
-      const headerModeText = document.getElementById('header-mode-text');
-      const adminModeBadge = document.getElementById('admin-mode-badge');
-      const adminModeDot = document.getElementById('admin-mode-dot');
-      const adminModeText = document.getElementById('admin-mode-text');
-
-      const tabField = document.getElementById('tab-field');
-      const tabAdmin = document.getElementById('tab-admin');
-      const adminLockIcon = document.getElementById('admin-lock-icon');
-      const navCountBadge = document.getElementById('nav-count-badge');
-      const viewField = document.getElementById('view-field');
-      const viewAdmin = document.getElementById('view-admin');
-
-      // Field check-in form
-      const checkinForm = document.getElementById('checkin-form');
-      const officerNameInput = document.getElementById('officer-name');
-      const zoneSelect = document.getElementById('zone-select');
-      const photoInput = document.getElementById('photo-input');
-      const photoTriggerBtn = document.getElementById('photo-trigger-btn');
-      const photoPreviewWrapper = document.getElementById('photo-preview-wrapper');
-      const photoPreviewImg = document.getElementById('photo-preview-img');
-      const retakePhotoBtn = document.getElementById('retake-photo-btn');
-      const gpsBtn = document.getElementById('gps-btn');
-      const gpsStatusText = document.getElementById('gps-status-text');
-      const statusOptionBtns = document.querySelectorAll('.status-option-btn');
-      const notesInput = document.getElementById('notes-input');
-      const notesHint = document.getElementById('notes-hint');
-
-      // Admin dashboard
-      const statTotal = document.getElementById('stat-total');
-      const statNormal = document.getElementById('stat-normal');
-      const statIssues = document.getElementById('stat-issues');
-      const filterZone = document.getElementById('filter-zone');
-      const filterStatus = document.getElementById('filter-status');
-      const filteredCount = document.getElementById('filtered-count');
-      const dashboardLoading = document.getElementById('dashboard-loading');
-      const recordsGrid = document.getElementById('records-grid');
-      const emptyState = document.getElementById('empty-state');
-      const emptyStateSubtitle = document.getElementById('empty-state-subtitle');
-      const refreshBtn = document.getElementById('refresh-btn');
-      const refreshIcon = document.getElementById('refresh-icon');
-      const loadSampleBtn = document.getElementById('load-sample-btn');
-      const lockAdminBtn = document.getElementById('lock-admin-btn');
-
-      // Verification & Sign-Off Overlay
-      const signatureModal = document.getElementById('signature-modal');
-      const closeSignatureModalBtn = document.getElementById('close-signature-modal');
-      const cancelSignatureBtn = document.getElementById('cancel-signature-btn');
-      const confirmSignatureBtn = document.getElementById('confirm-signature-btn');
-      const confirmCheckIcon = document.getElementById('confirm-check-icon');
-      const confirmSpinner = document.getElementById('confirm-spinner');
-      const confirmSignatureLabel = document.getElementById('confirm-signature-label');
-      const sigSummaryOfficer = document.getElementById('sig-summary-officer');
-      const sigSummaryZone = document.getElementById('sig-summary-zone');
-      const sigSummaryStatus = document.getElementById('sig-summary-status');
-      const termsAgreeCheckbox = document.getElementById('terms-agree-checkbox');
-      const clearSignatureBtn = document.getElementById('clear-signature-btn');
-      const signatureCanvas = document.getElementById('signature-canvas');
-      const signaturePlaceholder = document.getElementById('signature-placeholder');
-
-      // PIN Modal
-      const pinModal = document.getElementById('pin-modal');
-      const pinForm = document.getElementById('pin-form');
-      const pinInput = document.getElementById('pin-input');
-      const pinErrorText = document.getElementById('pin-error-text');
-      const closePinModalBtn = document.getElementById('close-pin-modal');
-      const cancelPinBtn = document.getElementById('cancel-pin-btn');
-
-      // Detail Modal
-      const detailModal = document.getElementById('detail-modal');
-      const closeDetailModalBtn = document.getElementById('close-detail-modal');
-      const modalCloseFooterBtn = document.getElementById('modal-close-footer-btn');
-      const modalDeleteBtn = document.getElementById('modal-delete-btn');
-      const modalStatusBadge = document.getElementById('modal-status-badge');
-      const modalZoneTitle = document.getElementById('modal-zone-title');
-      const modalImage = document.getElementById('modal-image');
-      const modalDriveLinksBar = document.getElementById('modal-drive-links-bar');
-      const modalPhotoDriveLink = document.getElementById('modal-photo-drive-link');
-      const modalSigDriveLink = document.getElementById('modal-sig-drive-link');
-      const modalOfficer = document.getElementById('modal-officer');
-      const modalRecordId = document.getElementById('modal-record-id');
-      const modalServerTime = document.getElementById('modal-server-time');
-      const modalClientTime = document.getElementById('modal-client-time');
-      const modalGps = document.getElementById('modal-gps');
-      const modalMapLink = document.getElementById('modal-map-link');
-      const modalNotes = document.getElementById('modal-notes');
-      const modalSignatureImg = document.getElementById('modal-signature-img');
-      const modalNoSignature = document.getElementById('modal-no-signature');
-
-      // Confirm Modal & Toast Container
-      const confirmModal = document.getElementById('confirm-modal');
-      const confirmTitle = document.getElementById('confirm-title');
-      const confirmMessage = document.getElementById('confirm-message');
-      const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
-      const confirmOkBtn = document.getElementById('confirm-ok-btn');
-      const toastContainer = document.getElementById('toast-container');
-
-      // =======================================================================
-      // 4. UTILITIES (TOASTS, FORMATTING, ESCAPING, CONFIRMATION)
-      // =======================================================================
-      function showToast(message, type = 'info') {
-        const styles = {
-          success: 'bg-emerald-600 text-white border-emerald-400/40',
-          error: 'bg-rose-600 text-white border-rose-400/40',
-          info: 'bg-slate-800 text-slate-100 border-slate-600',
-        };
-        const toast = document.createElement('div');
-        toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-2xl text-sm font-semibold flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-2 ${styles[type] || styles.info}`;
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-
-        requestAnimationFrame(() => {
-          toast.classList.remove('opacity-0', 'translate-y-2');
-        });
-
-        setTimeout(() => {
-          toast.classList.add('opacity-0', 'translate-y-2');
-          setTimeout(() => toast.remove(), 300);
-        }, 3400);
-      }
-
-      function formatDateTime(dateObj) {
-        const pad = (n) => String(n).padStart(2, '0');
-        const y = dateObj.getFullYear();
-        const m = pad(dateObj.getMonth() + 1);
-        const d = pad(dateObj.getDate());
-        const hh = pad(dateObj.getHours());
-        const mm = pad(dateObj.getMinutes());
-        const ss = pad(dateObj.getSeconds());
-        return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
-      }
-
-      function generateRecordId() {
-        return `SG-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-      }
-
-      function escapeHtml(str) {
-        return String(str || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
-      }
-
-      function openConfirmModal(title, message, onConfirm) {
-        confirmTitle.textContent = title;
-        confirmMessage.textContent = message;
-        pendingConfirmAction = onConfirm;
-        confirmModal.classList.remove('hidden');
-        confirmModal.classList.add('flex');
-      }
-
-      function closeConfirmModal() {
-        confirmModal.classList.add('hidden');
-        confirmModal.classList.remove('flex');
-        pendingConfirmAction = null;
-      }
-
-      confirmCancelBtn.addEventListener('click', closeConfirmModal);
-      confirmOkBtn.addEventListener('click', async () => {
-        const action = pendingConfirmAction;
-        closeConfirmModal();
-        if (typeof action === 'function') {
-          await action();
-        }
+      document.getElementById("photoInput").addEventListener("change", handlePhotoSelected);
+      document.getElementById("inspectorInput").addEventListener("input", () => {
+        if (rawImageElement) renderWatermarkedPhoto();
+      });
+      document.getElementById("zoneSelect").addEventListener("change", () => {
+        if (rawImageElement) renderWatermarkedPhoto();
       });
 
-      // =======================================================================
-      // 5. MODE VISUALIZATION & DATA ACCESS LAYER (GAS LIVE vs LOCAL DEMO)
-      // =======================================================================
-      function applyModeUI() {
-        if (isLiveMode) {
-          headerModeBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30';
-          headerModeDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
-          headerModeText.textContent = 'Google Drive Live';
+      captureGPS();
+    });
 
-          adminModeBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30';
-          adminModeDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-          adminModeText.textContent = 'Google Drive Live';
-
-          loadSampleBtn.classList.add('hidden');
-          emptyStateSubtitle.textContent = 'Submit a verification from Field Check-In or click Refresh to fetch from Google Sheets.';
-        } else {
-          headerModeBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30';
-          headerModeDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
-          headerModeText.textContent = 'Local Demo';
-
-          adminModeBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30';
-          adminModeDot.className = 'w-2 h-2 rounded-full bg-amber-400';
-          adminModeText.textContent = 'Local Demo';
-
-          loadSampleBtn.classList.remove('hidden');
-          emptyStateSubtitle.textContent = 'Submit a check-in from Field Check-In or click "Load Sample Data" to populate examples.';
-        }
+    function updateModeBadge() {
+      const badge = document.getElementById("modeBadge");
+      const sampleBtn = document.getElementById("btnLoadSample");
+      if (IS_LIVE_MODE) {
+        badge.className = "inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Google Drive Live';
+        sampleBtn.classList.add("hidden");
+      } else {
+        badge.className = "inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local Demo';
+        sampleBtn.classList.remove("hidden");
       }
+    }
 
-      function readLocalRecords() {
-        try {
-          const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-          const parsed = raw ? JSON.parse(raw) : [];
-          return Array.isArray(parsed) ? parsed : [];
-        } catch (err) {
-          console.error('Error reading localStorage:', err);
-          return [];
-        }
-      }
-
-      function writeLocalRecords(list) {
-        try {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
-          return true;
-        } catch (err) {
-          console.error('Error writing localStorage:', err);
-          showToast('Local storage is full. Please delete older demo records.', 'error');
-          return false;
-        }
-      }
-
-      // GAS API Contract 2: List (GET ?action=list)
-      async function fetchRecords(showFeedback = false) {
-        if (!isLiveMode) {
-          records = readLocalRecords();
-          renderDashboard();
-          if (showFeedback) showToast('Refreshed local demo records.', 'info');
-          return;
-        }
-
-        refreshBtn.disabled = true;
-        refreshIcon.classList.add('animate-spin');
-        if (records.length === 0) {
-          dashboardLoading.classList.remove('hidden');
-          recordsGrid.classList.add('hidden');
-          emptyState.classList.add('hidden');
-        }
-
-        try {
-          const url = `${GAS_WEB_APP_URL.trim()}?action=list`;
-          const response = await fetch(url, { method: 'GET' });
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-          const data = await response.json();
-          if (!data || !data.ok) {
-            throw new Error((data && data.error) || 'Failed to load records from GAS');
-          }
-          records = Array.isArray(data.records) ? data.records : [];
-          renderDashboard();
-          if (showFeedback) showToast(`Synced ${records.length} records from Google Drive.`, 'success');
-        } catch (err) {
-          console.error('GAS List error:', err);
-          showToast('Unable to sync with Google Drive backend. Check Web App URL & permissions.', 'error');
-        } finally {
-          refreshBtn.disabled = false;
-          refreshIcon.classList.remove('animate-spin');
-          dashboardLoading.classList.add('hidden');
-          recordsGrid.classList.remove('hidden');
-        }
-      }
-
-      // GAS API Contract 1: Create (POST with text/plain to avoid CORS preflight)
-      async function createVerificationRecord(payload) {
-        if (!isLiveMode) {
-          const demoRecord = {
-            id: payload.id,
-            serverTimestamp: formatDateTime(new Date()),
-            clientTimestamp: payload.clientTimestamp,
-            officerName: payload.officerName,
-            zone: payload.zone,
-            status: payload.status,
-            notes: payload.notes,
-            gps: payload.gps,
-            lat: payload.lat,
-            lng: payload.lng,
-            attestationAccepted: true,
-            photoThumbUrl: payload.photoBase64,
-            photoDriveUrl: '',
-            sigThumbUrl: payload.signatureBase64,
-            sigDriveUrl: '',
-          };
-          records.unshift(demoRecord);
-          const ok = writeLocalRecords(records);
-          if (ok) renderDashboard();
-          return ok;
-        }
-
-        const response = await fetch(GAS_WEB_APP_URL.trim(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Upload failed (HTTP ${response.status})`);
-        }
-
-        const data = await response.json();
-        if (!data || !data.ok) {
-          throw new Error((data && data.error) || 'Backend rejected submission');
-        }
-
-        if (data.record) {
-          records.unshift(data.record);
-          renderDashboard();
-        } else {
-          await fetchRecords(false);
-        }
-        return true;
-      }
-
-      // GAS API Contract 3: Delete (POST with text/plain, action: "delete", id, pin)
-      async function deleteVerificationRecord(recordId) {
-        if (!isLiveMode) {
-          records = records.filter((r) => r.id !== recordId);
-          const ok = writeLocalRecords(records);
-          if (ok) renderDashboard();
-          return ok;
-        }
-
-        const response = await fetch(GAS_WEB_APP_URL.trim(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'delete',
-            id: recordId,
-            pin: ADMIN_PIN,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Delete failed (HTTP ${response.status})`);
-        }
-
-        const data = await response.json();
-        if (!data || !data.ok) {
-          throw new Error((data && data.error) || 'Backend failed to delete record');
-        }
-
-        records = records.filter((r) => r.id !== recordId);
-        renderDashboard();
-        return true;
-      }
-
-      // =======================================================================
-      // 6. NAVIGATION & ADMIN PIN PROTECTION
-      // =======================================================================
-      function updateAdminLockVisual() {
-        if (isAdminUnlocked) {
-          adminLockIcon.innerHTML =
-            '<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />';
-          adminLockIcon.classList.remove('text-slate-400');
-          adminLockIcon.classList.add('text-emerald-400');
-        } else {
-          adminLockIcon.innerHTML =
-            '<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />';
-          adminLockIcon.classList.remove('text-emerald-400');
-          adminLockIcon.classList.add('text-slate-400');
-        }
-      }
-
-      function switchView(target) {
-        if (target === 'admin' && !isAdminUnlocked) {
+    // =========================================================================
+    // NAVIGATION & ADMIN PIN
+    // =========================================================================
+    function switchTab(tab) {
+      if (tab === "admin") {
+        if (sessionStorage.getItem("siteguard_admin_unlocked") !== "true") {
           openPinModal();
           return;
         }
-
-        currentView = target;
-        if (target === 'field') {
-          viewField.classList.remove('hidden');
-          viewAdmin.classList.add('hidden');
-          tabField.className = 'px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 bg-sky-600 text-white shadow-sm';
-          tabAdmin.className = 'px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
-        } else {
-          viewField.classList.add('hidden');
-          viewAdmin.classList.remove('hidden');
-          tabAdmin.className = 'px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 bg-sky-600 text-white shadow-sm';
-          tabField.className = 'px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 text-slate-300 hover:text-white';
-          fetchRecords(false);
-        }
-      }
-
-      function openPinModal() {
-        pinInput.value = '';
-        pinErrorText.classList.add('hidden');
-        pinModal.classList.remove('hidden');
-        pinModal.classList.add('flex');
-        setTimeout(() => pinInput.focus(), 60);
-      }
-
-      function closePinModal() {
-        pinModal.classList.add('hidden');
-        pinModal.classList.remove('flex');
-      }
-
-      pinForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (pinInput.value.trim() === ADMIN_PIN) {
-          isAdminUnlocked = true;
-          sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-          updateAdminLockVisual();
-          closePinModal();
-          switchView('admin');
-          showToast('Admin Dashboard unlocked.', 'success');
-        } else {
-          pinErrorText.classList.remove('hidden');
-          pinInput.select();
-        }
-      });
-
-      closePinModalBtn.addEventListener('click', closePinModal);
-      cancelPinBtn.addEventListener('click', closePinModal);
-      pinModal.addEventListener('click', (e) => {
-        if (e.target === pinModal) closePinModal();
-      });
-
-      lockAdminBtn.addEventListener('click', () => {
-        isAdminUnlocked = false;
-        sessionStorage.removeItem(ADMIN_SESSION_KEY);
-        updateAdminLockVisual();
-        switchView('field');
-        showToast('Admin Dashboard locked.', 'info');
-      });
-
-      tabField.addEventListener('click', () => switchView('field'));
-      tabAdmin.addEventListener('click', () => switchView('admin'));
-
-      // =======================================================================
-      // 7. PHOTO CAPTURE, COMPRESSION (MAX 960px, 0.72 JPEG) & WATERMARKING
-      // =======================================================================
-      function renderWatermarkedPhoto() {
-        if (!loadedOriginalImage) return;
-
-        const MAX_WIDTH = 960;
-        let targetW = loadedOriginalImage.naturalWidth || loadedOriginalImage.width;
-        let targetH = loadedOriginalImage.naturalHeight || loadedOriginalImage.height;
-
-        if (targetW > MAX_WIDTH) {
-          const scale = MAX_WIDTH / targetW;
-          targetW = MAX_WIDTH;
-          targetH = Math.round(targetH * scale);
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = targetW;
-        canvas.height = targetH;
-        const ctx = canvas.getContext('2d');
-
-        // Draw compressed photo onto offscreen canvas
-        ctx.drawImage(loadedOriginalImage, 0, 0, targetW, targetH);
-
-        // Burn clean semi-transparent watermark bar at bottom-right
-        const officerLabel = officerNameInput.value.trim() || 'Unassigned Officer';
-        const zoneLabel = zoneSelect.value;
-        const lines = [
-          `TIME: ${capturedClientTimestamp}`,
-          `ZONE: ${zoneLabel}`,
-          `OFFICER: ${officerLabel}`,
-        ];
-
-        const fontSize = Math.max(13, Math.round(targetW * 0.021));
-        const lineHeight = Math.round(fontSize * 1.42);
-        const padX = Math.round(fontSize * 0.9);
-        const padY = Math.round(fontSize * 0.7);
-        const margin = Math.round(fontSize * 0.85);
-
-        ctx.font = `600 ${fontSize}px Inter, system-ui, sans-serif`;
-        let maxTextW = 0;
-        for (const line of lines) {
-          const w = ctx.measureText(line).width;
-          if (w > maxTextW) maxTextW = w;
-        }
-
-        const boxW = Math.min(targetW - margin * 2, maxTextW + padX * 2);
-        const boxH = lines.length * lineHeight + padY * 2;
-        const boxX = targetW - boxW - margin;
-        const boxY = targetH - boxH - margin;
-
-        ctx.save();
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.76)';
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-        ctx.lineWidth = 1.2;
-
-        const r = 10;
-        ctx.beginPath();
-        ctx.moveTo(boxX + r, boxY);
-        ctx.lineTo(boxX + boxW - r, boxY);
-        ctx.quadraticCurveTo(boxX + boxW, boxY, boxX + boxW, boxY + r);
-        ctx.lineTo(boxX + boxW, boxY + boxH - r);
-        ctx.quadraticCurveTo(boxX + boxW, boxY + boxH, boxX + boxW - r, boxY + boxH);
-        ctx.lineTo(boxX + r, boxY + boxH);
-        ctx.quadraticCurveTo(boxX, boxY + boxH, boxX, boxY + boxH - r);
-        ctx.lineTo(boxX, boxY + r);
-        ctx.quadraticCurveTo(boxX, boxY, boxX + r, boxY);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#f8fafc';
-        ctx.textBaseline = 'top';
-        lines.forEach((line, idx) => {
-          ctx.fillText(line, boxX + padX, boxY + padY + idx * lineHeight, boxW - padX * 2);
-        });
-        ctx.restore();
-
-        watermarkedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.72);
-        photoPreviewImg.src = watermarkedPhotoBase64;
-        photoTriggerBtn.classList.add('hidden');
-        photoPreviewWrapper.classList.remove('hidden');
-      }
-
-      photoTriggerBtn.addEventListener('click', () => photoInput.click());
-      retakePhotoBtn.addEventListener('click', () => {
-        photoInput.value = '';
-        photoInput.click();
-      });
-
-      photoInput.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            loadedOriginalImage = img;
-            capturedClientTimestamp = formatDateTime(new Date());
-            renderWatermarkedPhoto();
-            showToast('Photo captured and watermarked.', 'success');
-          };
-          img.onerror = () => {
-            showToast('Could not read image file.', 'error');
-          };
-          img.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-
-      // Automatically re-render watermark if Officer Name or Zone changes after capture
-      officerNameInput.addEventListener('input', () => {
-        if (loadedOriginalImage) renderWatermarkedPhoto();
-      });
-      zoneSelect.addEventListener('change', () => {
-        if (loadedOriginalImage) renderWatermarkedPhoto();
-      });
-
-      // =======================================================================
-      // 8. GPS GEOLOCATION CAPTURE
-      // =======================================================================
-      gpsBtn.addEventListener('click', () => {
-        if (!('geolocation' in navigator)) {
-          currentGps = { lat: null, lng: null, gps: 'Location unavailable' };
-          gpsStatusText.textContent = 'Location unavailable';
-          showToast('Geolocation is not supported by this browser.', 'error');
-          return;
-        }
-
-        gpsBtn.disabled = true;
-        gpsStatusText.textContent = 'Acquiring GPS coordinates...';
-
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const lat = Number(pos.coords.latitude.toFixed(6));
-            const lng = Number(pos.coords.longitude.toFixed(6));
-            const acc = Math.round(pos.coords.accuracy || 0);
-            currentGps = {
-              lat,
-              lng,
-              gps: `${lat}, ${lng} (±${acc}m)`,
-            };
-            gpsStatusText.textContent = currentGps.gps;
-            gpsStatusText.classList.remove('text-slate-400');
-            gpsStatusText.classList.add('text-emerald-400', 'font-semibold');
-            gpsBtn.disabled = false;
-            showToast('GPS location captured.', 'success');
-          },
-          () => {
-            currentGps = { lat: null, lng: null, gps: 'Location unavailable' };
-            gpsStatusText.textContent = 'Location unavailable';
-            gpsStatusText.classList.remove('text-emerald-400', 'font-semibold');
-            gpsStatusText.classList.add('text-slate-400');
-            gpsBtn.disabled = false;
-            showToast('Location permission denied or unavailable.', 'info');
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      });
-
-      // =======================================================================
-      // 9. STATUS TOGGLE & FORM SUBMIT -> VERIFICATION OVERLAY
-      // =======================================================================
-      function setStatusSelection(status) {
-        selectedStatus = status;
-        statusOptionBtns.forEach((btn) => {
-          const isTarget = btn.dataset.status === status;
-          if (isTarget && status === 'Normal') {
-            btn.className = 'status-option-btn py-3.5 px-3 rounded-xl border-2 border-emerald-500 bg-emerald-500/15 text-emerald-300 font-bold text-sm sm:text-base transition flex items-center justify-center gap-2 shadow-sm';
-          } else if (isTarget && status === 'Issue Reported') {
-            btn.className = 'status-option-btn py-3.5 px-3 rounded-xl border-2 border-rose-500 bg-rose-500/15 text-rose-300 font-bold text-sm sm:text-base transition flex items-center justify-center gap-2 shadow-sm';
-          } else {
-            btn.className = 'status-option-btn py-3.5 px-3 rounded-xl border-2 border-slate-700 bg-slate-950/60 text-slate-400 hover:border-slate-600 hover:text-slate-200 font-bold text-sm sm:text-base transition flex items-center justify-center gap-2';
-          }
-        });
-
-        if (status === 'Issue Reported') {
-          notesHint.textContent = '(Recommended for incident details)';
-          notesHint.className = 'text-xs font-semibold text-rose-400';
-        } else {
-          notesHint.textContent = '(Optional)';
-          notesHint.className = 'text-xs font-normal text-slate-400';
-        }
-      }
-
-      statusOptionBtns.forEach((btn) => {
-        btn.addEventListener('click', () => setStatusSelection(btn.dataset.status));
-      });
-
-      checkinForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const officerName = officerNameInput.value.trim();
-
-        if (!officerName) {
-          showToast('Please enter the Officer Name.', 'error');
-          officerNameInput.focus();
-          return;
-        }
-
-        if (!watermarkedPhotoBase64) {
-          showToast('Please capture a site photo before submitting.', 'error');
-          return;
-        }
-
-        // Guarantee watermark reflects latest inputs
-        renderWatermarkedPhoto();
-        openSignatureOverlay();
-      });
-
-      // =======================================================================
-      // 10. HIGH-DPI TOUCH SIGNATURE PAD & SIGN-OFF SUBMISSION
-      // =======================================================================
-      function initSignatureCanvas() {
-        const rect = signatureCanvas.getBoundingClientRect();
-        const dpr = Math.max(window.devicePixelRatio || 1, 1);
-        signatureCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
-        signatureCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
-
-        sigCtx = signatureCanvas.getContext('2d');
-        sigCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        sigCtx.lineCap = 'round';
-        sigCtx.lineJoin = 'round';
-        sigCtx.strokeStyle = '#0f172a';
-        sigCtx.lineWidth = 2.6;
-
-        hasSignatureStroke = false;
-        signaturePlaceholder.classList.remove('hidden');
-        updateConfirmButtonState();
-      }
-
-      function updateConfirmButtonState() {
-        confirmSignatureBtn.disabled = !(termsAgreeCheckbox.checked && hasSignatureStroke);
-      }
-
-      function setConfirmLoading(isLoading) {
-        if (isLoading) {
-          confirmSignatureBtn.disabled = true;
-          confirmCheckIcon.classList.add('hidden');
-          confirmSpinner.classList.remove('hidden');
-          confirmSignatureLabel.textContent = isLiveMode ? 'Uploading to Google Drive...' : 'Saving...';
-        } else {
-          confirmCheckIcon.classList.remove('hidden');
-          confirmSpinner.classList.add('hidden');
-          confirmSignatureLabel.textContent = 'Confirm & Sign';
-          updateConfirmButtonState();
-        }
-      }
-
-      function openSignatureOverlay() {
-        sigSummaryOfficer.textContent = officerNameInput.value.trim();
-        sigSummaryZone.textContent = zoneSelect.value;
-        sigSummaryStatus.textContent = selectedStatus;
-        sigSummaryStatus.className =
-          selectedStatus === 'Normal'
-            ? 'px-2.5 py-1 rounded-full font-bold text-xs shrink-0 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
-            : 'px-2.5 py-1 rounded-full font-bold text-xs shrink-0 bg-rose-500/20 text-rose-300 border border-rose-400/30';
-
-        termsAgreeCheckbox.checked = false;
-        setConfirmLoading(false);
-        signatureModal.classList.remove('hidden');
-        signatureModal.classList.add('flex');
-
-        requestAnimationFrame(() => {
-          initSignatureCanvas();
-        });
-      }
-
-      function closeSignatureOverlay() {
-        signatureModal.classList.add('hidden');
-        signatureModal.classList.remove('flex');
-        isDrawing = false;
-      }
-
-      function getCanvasPoint(evt) {
-        const rect = signatureCanvas.getBoundingClientRect();
-        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-        return {
-          x: clientX - rect.left,
-          y: clientY - rect.top,
-        };
-      }
-
-      function startStroke(evt) {
-        if (!sigCtx) return;
-        if (evt.cancelable) evt.preventDefault();
-        isDrawing = true;
-        const pt = getCanvasPoint(evt);
-        sigCtx.beginPath();
-        sigCtx.moveTo(pt.x, pt.y);
-        sigCtx.lineTo(pt.x + 0.1, pt.y + 0.1);
-        sigCtx.stroke();
-
-        if (!hasSignatureStroke) {
-          hasSignatureStroke = true;
-          signaturePlaceholder.classList.add('hidden');
-          updateConfirmButtonState();
-        }
-      }
-
-      function moveStroke(evt) {
-        if (!isDrawing || !sigCtx) return;
-        if (evt.cancelable) evt.preventDefault();
-        const pt = getCanvasPoint(evt);
-        sigCtx.lineTo(pt.x, pt.y);
-        sigCtx.stroke();
-      }
-
-      function endStroke(evt) {
-        if (!isDrawing) return;
-        if (evt && evt.cancelable) evt.preventDefault();
-        isDrawing = false;
-        if (sigCtx) sigCtx.closePath();
-      }
-
-      if (window.PointerEvent) {
-        signatureCanvas.addEventListener('pointerdown', (e) => {
-          signatureCanvas.setPointerCapture(e.pointerId);
-          startStroke(e);
-        });
-        signatureCanvas.addEventListener('pointermove', moveStroke);
-        signatureCanvas.addEventListener('pointerup', endStroke);
-        signatureCanvas.addEventListener('pointercancel', endStroke);
+        document.getElementById("viewField").classList.add("hidden");
+        document.getElementById("viewAdmin").classList.remove("hidden");
+        document.getElementById("tabField").className = "px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md text-slate-300 hover:text-white transition";
+        document.getElementById("tabAdmin").className = "px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md bg-slate-700 text-white transition";
+        loadRecords();
       } else {
-        signatureCanvas.addEventListener('mousedown', startStroke);
-        window.addEventListener('mousemove', moveStroke);
-        window.addEventListener('mouseup', endStroke);
-        signatureCanvas.addEventListener('touchstart', startStroke, { passive: false });
-        signatureCanvas.addEventListener('touchmove', moveStroke, { passive: false });
-        signatureCanvas.addEventListener('touchend', endStroke, { passive: false });
+        document.getElementById("viewAdmin").classList.add("hidden");
+        document.getElementById("viewField").classList.remove("hidden");
+        document.getElementById("tabAdmin").className = "px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md text-slate-300 hover:text-white transition";
+        document.getElementById("tabField").className = "px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md bg-slate-700 text-white transition";
       }
+    }
 
-      clearSignatureBtn.addEventListener('click', initSignatureCanvas);
-      termsAgreeCheckbox.addEventListener('change', updateConfirmButtonState);
-      closeSignatureModalBtn.addEventListener('click', closeSignatureOverlay);
-      cancelSignatureBtn.addEventListener('click', closeSignatureOverlay);
+    function openPinModal() {
+      document.getElementById("pinInput").value = "";
+      document.getElementById("pinError").classList.add("hidden");
+      document.getElementById("pinModal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("pinInput").focus(), 50);
+    }
 
-      function exportSignatureBase64() {
-        const MAX_SIG_W = 520;
-        const srcW = signatureCanvas.width;
-        const srcH = signatureCanvas.height;
-        const scale = srcW > MAX_SIG_W ? MAX_SIG_W / srcW : 1;
+    function closePinModal() {
+      document.getElementById("pinModal").classList.add("hidden");
+    }
 
-        const out = document.createElement('canvas');
-        out.width = Math.max(1, Math.round(srcW * scale));
-        out.height = Math.max(1, Math.round(srcH * scale));
-        const ctx = out.getContext('2d');
-        // White background so PNG looks clean in Google Drive viewer
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, out.width, out.height);
-        ctx.drawImage(signatureCanvas, 0, 0, out.width, out.height);
-        return out.toDataURL('image/png');
+    function verifyPin() {
+      const entered = document.getElementById("pinInput").value.trim();
+      if (entered === ADMIN_PIN) {
+        sessionStorage.setItem("siteguard_admin_unlocked", "true");
+        closePinModal();
+        switchTab("admin");
+      } else {
+        document.getElementById("pinError").classList.remove("hidden");
       }
+    }
 
-      function resetCheckInForm() {
-        loadedOriginalImage = null;
-        watermarkedPhotoBase64 = '';
-        capturedClientTimestamp = '';
-        photoInput.value = '';
-        photoPreviewImg.src = '';
-        photoPreviewWrapper.classList.add('hidden');
-        photoTriggerBtn.classList.remove('hidden');
-        notesInput.value = '';
-        setStatusSelection('Normal');
+    function lockAdmin() {
+      sessionStorage.removeItem("siteguard_admin_unlocked");
+      switchTab("field");
+      showToast("Admin dashboard locked.");
+    }
+
+    // =========================================================================
+    // FIELD CHECK-IN: STATUS, GPS, PHOTO & WATERMARK
+    // =========================================================================
+    function setStatus(status) {
+      currentStatus = status;
+      const btnNormal = document.getElementById("btnStatusNormal");
+      const btnIssue = document.getElementById("btnStatusIssue");
+
+      if (status === "Normal") {
+        btnNormal.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-emerald-600 bg-emerald-50 text-emerald-800 text-sm font-medium transition";
+        btnIssue.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition";
+      } else {
+        btnNormal.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition";
+        btnIssue.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-rose-600 bg-rose-50 text-rose-800 text-sm font-medium transition";
       }
+    }
 
-      confirmSignatureBtn.addEventListener('click', async () => {
-        if (!termsAgreeCheckbox.checked || !hasSignatureStroke) return;
+    function captureGPS() {
+      const gpsEl = document.getElementById("gpsDisplay");
+      if (!navigator.geolocation) {
+        currentGps = "Location unavailable";
+        gpsEl.textContent = currentGps;
+        return;
+      }
+      gpsEl.textContent = "Acquiring GPS coordinates...";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          currentGps = `${lat}, ${lng}`;
+          gpsEl.textContent = currentGps;
+        },
+        () => {
+          currentGps = "Location unavailable";
+          gpsEl.textContent = currentGps;
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+      );
+    }
 
-        setConfirmLoading(true);
+    function handlePhotoSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
 
-        const payload = {
-          action: 'create',
-          id: generateRecordId(),
-          officerName: officerNameInput.value.trim(),
-          zone: zoneSelect.value,
-          status: selectedStatus,
-          notes: notesInput.value.trim(),
-          gps: currentGps.gps,
-          lat: currentGps.lat,
-          lng: currentGps.lng,
-          clientTimestamp: capturedClientTimestamp || formatDateTime(new Date()),
-          attestationAccepted: true,
-          photoBase64: watermarkedPhotoBase64,
-          signatureBase64: exportSignatureBase64(),
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          rawImageElement = img;
+          renderWatermarkedPhoto();
         };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
+    function renderWatermarkedPhoto() {
+      if (!rawImageElement) return;
+
+      const maxWidth = 960;
+      const scale = Math.min(1, maxWidth / rawImageElement.width);
+      const width = Math.round(rawImageElement.width * scale);
+      const height = Math.round(rawImageElement.height * scale);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      ctx.drawImage(rawImageElement, 0, 0, width, height);
+
+      const inspector = document.getElementById("inspectorInput").value.trim() || "Unassigned";
+      const zone = document.getElementById("zoneSelect").value;
+      const nowStr = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
+
+      const lines = [
+        `TIME: ${nowStr}`,
+        `ZONE: ${zone}`,
+        `INSPECTOR: ${inspector}`
+      ];
+
+      const fontSize = Math.max(12, Math.round(width * 0.02));
+      ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+
+      const lineHeight = Math.round(fontSize * 1.38);
+      const padX = Math.round(fontSize * 0.8);
+      const padY = Math.round(fontSize * 0.6);
+      const maxTextWidth = Math.max(...lines.map((l) => ctx.measureText(l).width));
+      const boxW = maxTextWidth + padX * 2;
+      const boxH = lines.length * lineHeight + padY * 2;
+      const boxX = width - boxW - 12;
+      const boxY = height - boxH - 12;
+
+      ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.textBaseline = "top";
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, boxX + padX, boxY + padY + idx * lineHeight);
+      });
+
+      watermarkedPhotoDataUrl = canvas.toDataURL("image/jpeg", 0.72);
+      document.getElementById("photoPreview").src = watermarkedPhotoDataUrl;
+      document.getElementById("photoPlaceholder").classList.add("hidden");
+      document.getElementById("photoPreviewWrap").classList.remove("hidden");
+    }
+
+    // =========================================================================
+    // SIGNATURE PAD & SIGN-OFF OVERLAY
+    // =========================================================================
+    function initSignaturePad() {
+      sigCanvas = document.getElementById("signatureCanvas");
+      sigCtx = sigCanvas.getContext("2d");
+
+      const getPos = (e) => {
+        const rect = sigCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+
+      const startDraw = (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getPos(e);
+        sigCtx.beginPath();
+        sigCtx.moveTo(pos.x, pos.y);
+      };
+
+      const draw = (e) => {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        sigCtx.lineTo(pos.x, pos.y);
+        sigCtx.stroke();
+        if (!hasSignature) {
+          hasSignature = true;
+          document.getElementById("sigPlaceholder").classList.add("hidden");
+          updateSignButtonState();
+        }
+      };
+
+      const endDraw = () => {
+        isDrawing = false;
+      };
+
+      sigCanvas.addEventListener("mousedown", startDraw);
+      sigCanvas.addEventListener("mousemove", draw);
+      window.addEventListener("mouseup", endDraw);
+
+      sigCanvas.addEventListener("touchstart", startDraw, { passive: false });
+      sigCanvas.addEventListener("touchmove", draw, { passive: false });
+      window.addEventListener("touchend", endDraw);
+    }
+
+    function resizeSignatureCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const rect = sigCanvas.getBoundingClientRect();
+      sigCanvas.width = rect.width * ratio;
+      sigCanvas.height = rect.height * ratio;
+      sigCtx.setTransform(1, 0, 0, 1, 0, 0);
+      sigCtx.scale(ratio, ratio);
+      sigCtx.lineWidth = 2.4;
+      sigCtx.lineCap = "round";
+      sigCtx.lineJoin = "round";
+      sigCtx.strokeStyle = "#0f172a";
+    }
+
+    function clearSignature() {
+      const rect = sigCanvas.getBoundingClientRect();
+      sigCtx.clearRect(0, 0, rect.width, rect.height);
+      hasSignature = false;
+      document.getElementById("sigPlaceholder").classList.remove("hidden");
+      updateSignButtonState();
+    }
+
+    function openSignOffModal() {
+      const inspector = document.getElementById("inspectorInput").value.trim();
+      if (!inspector) {
+        showToast("Please enter the inspector name.");
+        document.getElementById("inspectorInput").focus();
+        return;
+      }
+      if (!watermarkedPhotoDataUrl) {
+        showToast("Please capture a live verification photo first.");
+        return;
+      }
+
+      // Refresh watermark right before sign-off so timestamp is current
+      renderWatermarkedPhoto();
+
+      document.getElementById("agreeCheckbox").checked = false;
+      document.getElementById("signOffModal").classList.remove("hidden");
+      requestAnimationFrame(() => {
+        resizeSignatureCanvas();
+        clearSignature();
+      });
+    }
+
+    function closeSignOffModal() {
+      if (isSubmitting) return;
+      document.getElementById("signOffModal").classList.add("hidden");
+    }
+
+    function updateSignButtonState() {
+      const agreed = document.getElementById("agreeCheckbox").checked;
+      document.getElementById("btnConfirmSign").disabled = !(agreed && hasSignature) || isSubmitting;
+    }
+
+    async function confirmAndSubmit() {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      updateSignButtonState();
+
+      const btnText = document.getElementById("btnConfirmText");
+      btnText.innerHTML = '<span class="spinner"></span> Uploading...';
+
+      const signatureDataUrl = sigCanvas.toDataURL("image/png");
+      const timestamp = new Date().toISOString();
+
+      const payload = {
+        timestamp,
+        zone: document.getElementById("zoneSelect").value,
+        inspector: document.getElementById("inspectorInput").value.trim(),
+        status: currentStatus,
+        gps: currentGps,
+        memo: document.getElementById("memoInput").value.trim(),
+        photo: watermarkedPhotoDataUrl,
+        signature: signatureDataUrl
+      };
+
+      try {
+        if (IS_LIVE_MODE) {
+          const response = await fetch(`${GAS_WEB_APP_URL}?action=create`, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+          const text = await response.text();
+          let resJson;
+          try {
+            resJson = JSON.parse(text);
+          } catch {
+            throw new Error("Unexpected response from Apps Script.");
+          }
+          if (resJson.status && resJson.status !== "success") {
+            throw new Error(resJson.message || "Failed to save to Google Drive.");
+          }
+        } else {
+          const localList = getLocalRecords();
+          localList.unshift({
+            ...payload,
+            photoUrl: payload.photo,
+            signatureUrl: payload.signature
+          });
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localList));
+        }
+
+        // Reset form
+        rawImageElement = null;
+        watermarkedPhotoDataUrl = "";
+        document.getElementById("photoInput").value = "";
+        document.getElementById("photoPreviewWrap").classList.add("hidden");
+        document.getElementById("photoPlaceholder").classList.remove("hidden");
+        document.getElementById("memoInput").value = "";
+        setStatus("Normal");
+
+        isSubmitting = false;
+        btnText.textContent = "Confirm & Sign";
+        closeSignOffModal();
+        showToast(IS_LIVE_MODE ? "Verification saved to Google Drive & Sheets." : "Verification saved locally.");
+      } catch (err) {
+        console.error(err);
+        isSubmitting = false;
+        btnText.textContent = "Confirm & Sign";
+        updateSignButtonState();
+        showToast("Upload failed: " + err.message);
+      }
+    }
+
+    // =========================================================================
+    // DATA FETCHING & NORMALIZATION (GAS + LOCAL FALLBACK)
+    // =========================================================================
+    function getLocalRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function normalizeRecord(row) {
+      const vals = Object.values(row || {});
+      return {
+        timestamp: row.timestamp || row.Timestamp || row["일시"] || row["시간"] || vals[0] || "",
+        zone: row.zone || row.Zone || row["구역"] || vals[1] || "",
+        inspector: row.inspector || row.Inspector || row["담당자"] || vals[2] || "",
+        status: row.status || row.Status || row["상태"] || vals[3] || "Normal",
+        gps: row.gps || row.GPS || row["위치"] || vals[4] || "Location unavailable",
+        memo: row.memo || row.Memo || row.notes || row["메모"] || row["비고"] || vals[5] || "",
+        photoUrl: row.photoUrl || row.photo || row.Photo || row["사진URL"] || row["사진"] || vals[6] || "",
+        signatureUrl: row.signatureUrl || row.signature || row.Signature || row["서명URL"] || row["서명"] || vals[7] || ""
+      };
+    }
+
+    function extractDriveFileId(url) {
+      if (!url || typeof url !== "string") return null;
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      return match ? match[1] : null;
+    }
+
+    function toDisplayImageSrc(url) {
+      if (!url) return "";
+      if (url.startsWith("data:image/")) return url;
+      const fileId = extractDriveFileId(url);
+      if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+      }
+      return url;
+    }
+
+    async function loadRecords(manualRefresh = false) {
+      const loadingEl = document.getElementById("adminLoading");
+      const gridEl = document.getElementById("recordsGrid");
+      const emptyEl = document.getElementById("emptyState");
+
+      if (IS_LIVE_MODE) {
+        loadingEl.classList.remove("hidden");
+        gridEl.innerHTML = "";
+        emptyEl.classList.add("hidden");
         try {
-          const ok = await createVerificationRecord(payload);
-          if (ok) {
-            closeSignatureOverlay();
-            resetCheckInForm();
-            showToast(
-              isLiveMode
-                ? 'Verification signed & saved to Google Drive and Sheets.'
-                : 'Verification signed & saved in Local Demo mode.',
-              'success'
-            );
-          }
+          const res = await fetch(`${GAS_WEB_APP_URL}?action=list`);
+          const text = await res.text();
+          const data = JSON.parse(text);
+          const list = Array.isArray(data) ? data : (data.records || data.data || []);
+          records = list.map(normalizeRecord).reverse();
+          if (manualRefresh) showToast("Synced with Google Sheets.");
         } catch (err) {
-          console.error('Submit error:', err);
-          showToast(err.message || 'Failed to upload verification.', 'error');
+          console.error(err);
+          showToast("Failed to fetch records from Apps Script.");
+          records = [];
         } finally {
-          setConfirmLoading(false);
+          loadingEl.classList.add("hidden");
         }
+      } else {
+        records = getLocalRecords().map(normalizeRecord);
+      }
+
+      renderAdminList();
+    }
+
+    function renderAdminList() {
+      const zoneFilter = document.getElementById("filterZone").value;
+      const statusFilter = document.getElementById("filterStatus").value;
+
+      document.getElementById("statTotal").textContent = records.length;
+      document.getElementById("statNormal").textContent = records.filter((r) => r.status === "Normal").length;
+      document.getElementById("statIssues").textContent = records.filter((r) => r.status !== "Normal").length;
+
+      const filtered = records.filter((r) => {
+        const matchZone = zoneFilter === "ALL" || r.zone === zoneFilter;
+        const matchStatus = statusFilter === "ALL" || r.status === statusFilter;
+        return matchZone && matchStatus;
       });
 
-      // =======================================================================
-      // 11. ADMIN DASHBOARD RENDERING & DETAIL MODAL
-      // =======================================================================
-      function renderDashboard() {
-        const total = records.length;
-        const normalCount = records.filter((r) => r.status === 'Normal').length;
-        const issueCount = records.filter((r) => r.status === 'Issue Reported').length;
+      const gridEl = document.getElementById("recordsGrid");
+      const emptyEl = document.getElementById("emptyState");
 
-        navCountBadge.textContent = String(total);
-        statTotal.textContent = String(total);
-        statNormal.textContent = String(normalCount);
-        statIssues.textContent = String(issueCount);
-
-        const zoneFilterVal = filterZone.value;
-        const statusFilterVal = filterStatus.value;
-
-        const filtered = records.filter((r) => {
-          const matchZone = zoneFilterVal === 'ALL' || r.zone === zoneFilterVal;
-          const matchStatus = statusFilterVal === 'ALL' || r.status === statusFilterVal;
-          return matchZone && matchStatus;
-        });
-
-        filteredCount.textContent = String(filtered.length);
-
-        if (filtered.length === 0) {
-          recordsGrid.innerHTML = '';
-          emptyState.classList.remove('hidden');
-          return;
-        }
-
-        emptyState.classList.add('hidden');
-        recordsGrid.innerHTML = filtered
-          .map((rec) => {
-            const isNormal = rec.status === 'Normal';
-            const badgeClass = isNormal
-              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
-              : 'bg-rose-500/20 text-rose-300 border border-rose-400/40';
-            const thumbSrc = rec.photoThumbUrl || rec.photoBase64 || 'https://placehold.co/640x400/0f172a/94a3b8?text=No+Photo';
-            const displayTime = rec.serverTimestamp || rec.clientTimestamp || '-';
-            const hasGps = typeof rec.lat === 'number' && typeof rec.lng === 'number';
-            const hasSig = Boolean(rec.sigThumbUrl || rec.signatureBase64 || rec.sigDriveUrl);
-
-            return `
-              <article
-                data-record-id="${escapeHtml(rec.id)}"
-                class="record-card group bg-slate-900 rounded-2xl border border-slate-800 hover:border-sky-500/60 shadow-sm hover:shadow-lg hover:shadow-sky-950/50 transition overflow-hidden cursor-pointer flex flex-col"
-              >
-                <div class="relative aspect-[16/10] bg-slate-950 overflow-hidden">
-                  <img
-                    src="${escapeHtml(thumbSrc)}"
-                    alt="${escapeHtml(rec.zone)}"
-                    onerror="this.onerror=null;this.src='https://placehold.co/640x400/0f172a/94a3b8?text=Drive+Image';"
-                    class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md ${badgeClass}">
-                    ${escapeHtml(rec.status)}
-                  </span>
-                  ${
-                    hasSig
-                      ? `<span class="absolute top-3 right-3 px-2 py-0.5 rounded-lg bg-slate-950/80 text-sky-300 text-[11px] font-semibold backdrop-blur-sm border border-sky-400/30">Signed</span>`
-                      : ''
-                  }
-                </div>
-
-                <div class="p-4 flex-1 flex flex-col justify-between gap-3">
-                  <div class="space-y-1.5">
-                    <h3 class="text-sm font-bold text-white line-clamp-1">${escapeHtml(rec.zone)}</h3>
-                    <div class="flex items-center justify-between gap-2 text-xs text-slate-400">
-                      <span class="font-semibold text-slate-200 truncate">${escapeHtml(rec.officerName)}</span>
-                      <span class="shrink-0">${escapeHtml(displayTime)}</span>
-                    </div>
-                    ${
-                      rec.notes
-                        ? `<p class="text-xs text-slate-400 line-clamp-2 pt-1">${escapeHtml(rec.notes)}</p>`
-                        : `<p class="text-xs text-slate-500 italic pt-1">No additional notes</p>`
-                    }
-                  </div>
-
-                  <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                    <span class="flex items-center gap-1 truncate">
-                      <svg class="w-3.5 h-3.5 ${hasGps ? 'text-sky-400' : 'text-slate-500'} shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                      </svg>
-                      <span class="truncate">${hasGps ? 'GPS Verified' : 'No GPS'}</span>
-                    </span>
-                    <span class="font-semibold text-sky-400 group-hover:translate-x-0.5 transition-transform shrink-0">Inspect &rarr;</span>
-                  </div>
-                </div>
-              </article>
-            `;
-          })
-          .join('');
-
-        document.querySelectorAll('.record-card').forEach((card) => {
-          card.addEventListener('click', () => {
-            openDetailModal(card.dataset.recordId);
-          });
-        });
+      if (filtered.length === 0) {
+        gridEl.innerHTML = "";
+        emptyEl.classList.remove("hidden");
+        return;
       }
 
-      function openDetailModal(recordId) {
-        const rec = records.find((r) => r.id === recordId);
-        if (!rec) return;
+      emptyEl.classList.add("hidden");
+      gridEl.innerHTML = filtered.map((rec, idx) => {
+        const isNormal = rec.status === "Normal";
+        const badgeClass = isNormal
+          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+          : "bg-rose-50 text-rose-700 border-rose-200";
+        const imgSrc = toDisplayImageSrc(rec.photoUrl);
+        const formattedTime = formatTimestamp(rec.timestamp);
 
-        activeDetailRecordId = rec.id;
-        const isNormal = rec.status === 'Normal';
+        return `
+          <article onclick="openDetailModal(${idx})" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:border-slate-400 cursor-pointer transition flex flex-col">
+            <div class="h-44 bg-slate-900 relative overflow-hidden flex items-center justify-center">
+              ${imgSrc
+                ? `<img src="${escapeAttr(imgSrc)}" alt="Site photo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                   <div style="display:none" class="w-full h-full items-center justify-center text-xs text-slate-400 px-4 text-center">Stored in Google Drive (Tap to view)</div>`
+                : `<div class="text-xs text-slate-400">No photo available</div>`
+              }
+              <span class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${badgeClass}">
+                ${escapeHtml(rec.status)}
+              </span>
+            </div>
+            <div class="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between">
+              <div>
+                <p class="text-xs font-semibold text-slate-900 truncate">${escapeHtml(rec.zone)}</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Inspector: <span class="text-slate-700 font-medium">${escapeHtml(rec.inspector)}</span></p>
+              </div>
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span>${escapeHtml(formattedTime)}</span>
+                <span class="text-slate-600 font-medium">View Details &rarr;</span>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
 
-        modalStatusBadge.textContent = rec.status;
-        modalStatusBadge.className = isNormal
-          ? 'px-2.5 py-1 rounded-full text-xs font-bold shrink-0 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
-          : 'px-2.5 py-1 rounded-full text-xs font-bold shrink-0 bg-rose-500/20 text-rose-300 border border-rose-400/30';
+      window._filteredRecords = filtered;
+    }
 
-        modalZoneTitle.textContent = rec.zone || '-';
-        modalImage.src = rec.photoThumbUrl || rec.photoBase64 || 'https://placehold.co/800x500/0f172a/94a3b8?text=No+Photo';
-        modalOfficer.textContent = rec.officerName || '-';
-        modalRecordId.textContent = rec.id || '-';
-        modalServerTime.textContent = rec.serverTimestamp || '-';
-        modalClientTime.textContent = rec.clientTimestamp || '-';
-        modalGps.textContent = rec.gps || 'Location unavailable';
-        modalNotes.textContent = rec.notes || 'No notes provided.';
+    function openDetailModal(filteredIdx) {
+      const rec = (window._filteredRecords || [])[filteredIdx];
+      if (!rec) return;
 
-        // Google Maps link
-        if (typeof rec.lat === 'number' && typeof rec.lng === 'number') {
-          modalMapLink.href = `https://www.google.com/maps?q=${rec.lat},${rec.lng}`;
-          modalMapLink.classList.remove('hidden');
-        } else {
-          modalMapLink.classList.add('hidden');
-        }
+      const photoImg = toDisplayImageSrc(rec.photoUrl);
+      const sigImg = toDisplayImageSrc(rec.signatureUrl);
+      const isDrivePhoto = rec.photoUrl && rec.photoUrl.startsWith("http");
+      const isDriveSig = rec.signatureUrl && rec.signatureUrl.startsWith("http");
+      const hasCoords = rec.gps && /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(rec.gps.trim());
 
-        // Direct Google Drive links when present
-        let hasAnyDriveLink = false;
-        if (rec.photoDriveUrl) {
-          modalPhotoDriveLink.href = rec.photoDriveUrl;
-          modalPhotoDriveLink.classList.remove('hidden');
-          modalPhotoDriveLink.classList.add('inline-flex');
-          hasAnyDriveLink = true;
-        } else {
-          modalPhotoDriveLink.classList.add('hidden');
-          modalPhotoDriveLink.classList.remove('inline-flex');
-        }
-
-        if (rec.sigDriveUrl) {
-          modalSigDriveLink.href = rec.sigDriveUrl;
-          modalSigDriveLink.classList.remove('hidden');
-          modalSigDriveLink.classList.add('inline-flex');
-          hasAnyDriveLink = true;
-        } else {
-          modalSigDriveLink.classList.add('hidden');
-          modalSigDriveLink.classList.remove('inline-flex');
-        }
-
-        if (hasAnyDriveLink) {
-          modalDriveLinksBar.classList.remove('hidden');
-        } else {
-          modalDriveLinksBar.classList.add('hidden');
-        }
-
-        // Signature preview
-        const sigSrc = rec.sigThumbUrl || rec.signatureBase64 || '';
-        if (sigSrc) {
-          modalSignatureImg.src = sigSrc;
-          modalSignatureImg.classList.remove('hidden');
-          modalNoSignature.classList.add('hidden');
-        } else {
-          modalSignatureImg.classList.add('hidden');
-          modalNoSignature.classList.remove('hidden');
-        }
-
-        detailModal.classList.remove('hidden');
-        detailModal.classList.add('flex');
-      }
-
-      function closeDetailModal() {
-        detailModal.classList.add('hidden');
-        detailModal.classList.remove('flex');
-        activeDetailRecordId = null;
-      }
-
-      closeDetailModalBtn.addEventListener('click', closeDetailModal);
-      modalCloseFooterBtn.addEventListener('click', closeDetailModal);
-      detailModal.addEventListener('click', (e) => {
-        if (e.target === detailModal) closeDetailModal();
-      });
-
-      modalDeleteBtn.addEventListener('click', () => {
-        if (!activeDetailRecordId) return;
-        const targetId = activeDetailRecordId;
-        openConfirmModal(
-          'Delete Verification Record',
-          'Are you sure you want to permanently delete this record? In Google Drive Live mode, this will remove the row from Google Sheets.',
-          async () => {
-            try {
-              await deleteVerificationRecord(targetId);
-              closeDetailModal();
-              showToast('Record deleted successfully.', 'info');
-            } catch (err) {
-              console.error('Delete error:', err);
-              showToast(err.message || 'Failed to delete record.', 'error');
+      const detailBody = document.getElementById("detailBody");
+      detailBody.innerHTML = `
+        <div class="space-y-4">
+          <div class="rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+            ${photoImg
+              ? `<img src="${escapeAttr(photoImg)}" alt="Verification photo" class="w-full max-h-80 object-contain mx-auto" onerror="this.style.display='none';" />`
+              : ""
             }
+          </div>
+
+          ${isDrivePhoto
+            ? `<a href="${escapeAttr(rec.photoUrl)}" target="_blank" rel="noopener noreferrer"
+                class="block w-full text-center py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-800 transition">
+                Open Original Photo in Google Drive &nearr;
+              </a>`
+            : ""
           }
-        );
-      });
 
-      filterZone.addEventListener('change', renderDashboard);
-      filterStatus.addEventListener('change', renderDashboard);
-      refreshBtn.addEventListener('click', () => fetchRecords(true));
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+              <p class="text-slate-400 text-[11px]">Inspector</p>
+              <p class="font-semibold text-slate-900 mt-0.5">${escapeHtml(rec.inspector)}</p>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+              <p class="text-slate-400 text-[11px]">Status</p>
+              <p class="font-semibold mt-0.5 ${rec.status === 'Normal' ? 'text-emerald-700' : 'text-rose-700'}">${escapeHtml(rec.status)}</p>
+            </div>
+            <div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+              <p class="text-slate-400 text-[11px]">Inspection Zone</p>
+              <p class="font-semibold text-slate-900 mt-0.5">${escapeHtml(rec.zone)}</p>
+            </div>
+            <div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+              <p class="text-slate-400 text-[11px]">Timestamp</p>
+              <p class="font-mono text-slate-800 mt-0.5">${escapeHtml(formatTimestamp(rec.timestamp))}</p>
+            </div>
+            <div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200 flex items-center justify-between gap-2">
+              <div>
+                <p class="text-slate-400 text-[11px]">GPS Coordinates</p>
+                <p class="font-mono text-slate-800 mt-0.5">${escapeHtml(rec.gps)}</p>
+              </div>
+              ${hasCoords
+                ? `<a href="https://www.google.com/maps?q=${encodeURIComponent(rec.gps.trim())}" target="_blank" rel="noopener noreferrer"
+                    class="shrink-0 text-xs font-medium text-slate-700 underline hover:text-slate-900">View Map &nearr;</a>`
+                : ""
+              }
+            </div>
+            ${rec.memo
+              ? `<div class="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+                  <p class="text-slate-400 text-[11px]">Inspection Notes</p>
+                  <p class="text-slate-800 mt-0.5 whitespace-pre-wrap">${escapeHtml(rec.memo)}</p>
+                </div>`
+              : ""
+            }
+          </div>
 
-      // =======================================================================
-      // 12. SAMPLE DATA GENERATOR (LOCAL DEMO MODE)
-      // =======================================================================
-      function generateSamplePhoto(zone, officerName, timestamp, accentHex, subtitle) {
-        const c = document.createElement('canvas');
-        c.width = 800;
-        c.height = 500;
-        const ctx = c.getContext('2d');
+          <div class="border border-slate-200 rounded-xl p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-semibold text-slate-900">Electronic Signature & Attestation</p>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">eIDAS / ESIGN Signed</span>
+            </div>
+            <div class="bg-slate-50 rounded-lg border border-slate-200 p-2 flex items-center justify-center min-h-[80px]">
+              ${sigImg
+                ? `<img src="${escapeAttr(sigImg)}" alt="Electronic signature" class="max-h-24 object-contain" onerror="this.style.display='none';" />`
+                : `<span class="text-xs text-slate-400">No signature image</span>`
+              }
+            </div>
+            ${isDriveSig
+              ? `<a href="${escapeAttr(rec.signatureUrl)}" target="_blank" rel="noopener noreferrer"
+                  class="block text-center text-xs font-medium text-slate-700 underline hover:text-slate-900">
+                  Open Signature in Google Drive &nearr;
+                </a>`
+              : ""
+            }
+          </div>
+        </div>
+      `;
 
-        const grad = ctx.createLinearGradient(0, 0, 800, 500);
-        grad.addColorStop(0, '#020617');
-        grad.addColorStop(1, '#1e293b');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 800, 500);
+      document.getElementById("btnDeleteRecord").onclick = () => deleteRecord(rec);
+      document.getElementById("detailModal").classList.remove("hidden");
+    }
 
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
-        ctx.lineWidth = 1;
-        for (let x = 0; x < 800; x += 40) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, 500);
-          ctx.stroke();
-        }
-        for (let y = 0; y < 500; y += 40) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(800, y);
-          ctx.stroke();
-        }
+    function closeDetailModal() {
+      document.getElementById("detailModal").classList.add("hidden");
+    }
 
-        ctx.strokeStyle = accentHex;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(42, 42, 716, 300);
+    async function deleteRecord(rec) {
+      if (!confirm("Delete this verification record from the log?")) return;
 
-        ctx.fillStyle = accentHex;
-        ctx.font = '700 17px Inter, sans-serif';
-        ctx.fillText('SIMULATED FIELD EVIDENCE', 66, 92);
-
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = '700 28px Inter, sans-serif';
-        ctx.fillText(zone, 66, 145);
-
-        ctx.fillStyle = '#cbd5e1';
-        ctx.font = '500 18px Inter, sans-serif';
-        ctx.fillText(subtitle, 66, 188);
-
-        const lines = [
-          `TIME: ${timestamp}`,
-          `ZONE: ${zone}`,
-          `OFFICER: ${officerName}`,
-        ];
-        ctx.font = '600 15px Inter, sans-serif';
-        const boxW = 390;
-        const boxH = 88;
-        const boxX = 800 - boxW - 22;
-        const boxY = 500 - boxH - 22;
-
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.8)';
-        ctx.fillRect(boxX, boxY, boxW, boxH);
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(boxX, boxY, boxW, boxH);
-
-        ctx.fillStyle = '#f8fafc';
-        lines.forEach((line, i) => {
-          ctx.fillText(line, boxX + 14, boxY + 26 + i * 24);
-        });
-
-        return c.toDataURL('image/jpeg', 0.72);
-      }
-
-      function generateSampleSignature(seed) {
-        const c = document.createElement('canvas');
-        c.width = 420;
-        c.height = 140;
-        const ctx = c.getContext('2d');
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 420, 140);
-
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2.8;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        const offset = (seed % 4) * 14;
-        ctx.beginPath();
-        ctx.moveTo(45, 92);
-        ctx.bezierCurveTo(85 + offset, 22, 130, 118, 175, 58);
-        ctx.bezierCurveTo(210, 18, 240 + offset, 110, 295, 65);
-        ctx.bezierCurveTo(325, 42, 345, 90, 375, 74);
-        ctx.stroke();
-
-        return c.toDataURL('image/png');
-      }
-
-      loadSampleBtn.addEventListener('click', async () => {
-        if (isLiveMode) return;
-        const now = Date.now();
-        const samples = [
-          {
-            officerName: 'Elena Park',
-            zone: 'Zone D - Sensor / Detection Area',
-            status: 'Normal',
-            notes: 'Optical & PIR motion sensors inspected. Housings clean, alignment intact, status LED solid green.',
-            clientTimestamp: formatDateTime(new Date(now - 1000 * 60 * 14)),
-            gps: '3.139003, 101.686855 (±8m)',
-            lat: 3.139003,
-            lng: 101.686855,
-            accent: '#38bdf8',
-            subtitle: 'Perimeter Sensor Array & Detection Node #04',
-          },
-          {
-            officerName: 'Marcus Vance',
-            zone: 'Zone B - Exhibition / Equipment',
-            status: 'Issue Reported',
-            notes: 'Protective cable cover near Display Rack B2 slightly unseated. Maintenance notified immediately.',
-            clientTimestamp: formatDateTime(new Date(now - 1000 * 60 * 52)),
-            gps: '3.139412, 101.687120 (±11m)',
-            lat: 3.139412,
-            lng: 101.68712,
-            accent: '#fb7185',
-            subtitle: 'Main Exhibition Hall & Installed Hardware',
-          },
-          {
-            officerName: 'Daniel Cho',
-            zone: 'Zone A - Main Entrance / Lobby',
-            status: 'Normal',
-            notes: 'Access turnstiles operational, magnetic locks engaged, visitor log verified.',
-            clientTimestamp: formatDateTime(new Date(now - 1000 * 60 * 105)),
-            gps: '3.138820, 101.686490 (±12m)',
-            lat: 3.13882,
-            lng: 101.68649,
-            accent: '#34d399',
-            subtitle: 'Primary Lobby Checkpoint & Entry Gate',
-          },
-        ];
-
-        for (let i = 0; i < samples.length; i++) {
-          const s = samples[i];
-          await createVerificationRecord({
-            action: 'create',
-            id: generateRecordId(),
-            officerName: s.officerName,
-            zone: s.zone,
-            status: s.status,
-            notes: s.notes,
-            gps: s.gps,
-            lat: s.lat,
-            lng: s.lng,
-            clientTimestamp: s.clientTimestamp,
-            attestationAccepted: true,
-            photoBase64: generateSamplePhoto(s.zone, s.officerName, s.clientTimestamp, s.accent, s.subtitle),
-            signatureBase64: generateSampleSignature(i + 1),
+      try {
+        if (IS_LIVE_MODE) {
+          await fetch(`${GAS_WEB_APP_URL}?action=delete`, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              timestamp: rec.timestamp,
+              inspector: rec.inspector
+            })
           });
+          closeDetailModal();
+          showToast("Record deleted from Google Sheets.");
+          await loadRecords();
+        } else {
+          const updated = getLocalRecords().filter(
+            (r) => !(r.timestamp === rec.timestamp && r.inspector === rec.inspector)
+          );
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+          closeDetailModal();
+          showToast("Record deleted locally.");
+          loadRecords();
         }
-        showToast('Loaded 3 sample verification records.', 'success');
-      });
+      } catch (err) {
+        console.error(err);
+        showToast("Failed to delete record.");
+      }
+    }
 
-      // =======================================================================
-      // 13. INITIALIZATION
-      // =======================================================================
-      applyModeUI();
-      updateAdminLockVisual();
-      setStatusSelection('Normal');
-      fetchRecords(false);
-    })();
+    // =========================================================================
+    // DEMO SAMPLE DATA (LOCAL MODE ONLY)
+    // =========================================================================
+    function loadSampleData() {
+      const sample = [
+        {
+          timestamp: new Date(Date.now() - 1800 * 1000).toISOString(),
+          zone: "Zone D - Sensor / Detection Area",
+          inspector: "Jordan Lee",
+          status: "Normal",
+          gps: "37.566500, 126.978000",
+          memo: "All motion and LiDAR sensors calibrated and powered.",
+          photoUrl: "",
+          signatureUrl: ""
+        },
+        {
+          timestamp: new Date(Date.now() - 5400 * 1000).toISOString(),
+          zone: "Zone B - Exhibition Booth & Hardware",
+          inspector: "Chris Park",
+          status: "Issue Detected",
+          gps: "37.566820, 126.978410",
+          memo: "Rear cable lock slightly loose; secured with zip tie.",
+          photoUrl: "",
+          signatureUrl: ""
+        }
+      ];
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sample));
+      loadRecords();
+      showToast("Sample data loaded.");
+    }
+
+    // =========================================================================
+    // UTILITIES
+    // =========================================================================
+    function formatTimestamp(ts) {
+      if (!ts) return "-";
+      const d = new Date(ts);
+      if (isNaN(d.getTime())) return String(ts);
+      return d.toLocaleString("en-US", {
+        year: "numeric", month: "short", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add("hidden"), 3200);
+    }
   </script>
 </body>
 </html>
